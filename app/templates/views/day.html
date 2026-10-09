@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% block title %}Day Schedule - {{ date_str }}{% endblock %}
+
+{% block content %}
+<div class="container py-3" style="max-width: 960px;">
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb mb-2">
+      <li class="breadcrumb-item"><a href="{{ url_for('views.calendar_view') }}">Calendar</a></li>
+      <li class="breadcrumb-item active" aria-current="page">{{ date_str }}</li>
+    </ol>
+  </nav>
+
+  <div class="page-header d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4 pb-2 border-bottom">
+    <div>
+      <h1 class="h3 fw-bold mb-1"><i class="bi bi-calendar-event text-primary me-2" aria-hidden="true"></i>Schedule for {{ target_date | format_date("%A, %B %d, %Y") }}</h1>
+      <p class="text-muted small m-0">Review all handovers, lost items, and found items recorded on this day.</p>
+    </div>
+    <a href="{{ url_for('views.calendar_view') }}" class="btn btn-outline-secondary btn-sm" style="min-height: 40px; display: inline-flex; align-items: center;">&larr; Back to Calendar</a>
+  </div>
+
+  <!-- Scheduled Handovers Section -->
+  <div class="card shadow-sm border rounded-3 bg-white mb-4">
+    <div class="card-header bg-white py-3">
+      <h5 class="fw-bold m-0 text-primary"><i class="bi bi-box-arrow-right me-2"></i>Scheduled Handovers & Returns ({{ handovers | length }})</h5>
+    </div>
+    <div class="card-body p-0">
+      {% if handovers %}
+        <div class="list-group list-group-flush">
+          {% for h in handovers %}
+            <div class="list-group-item p-3 d-flex justify-content-between align-items-center flex-wrap">
+              <div>
+                <span class="fw-bold text-dark">Receiver: {{ h.receiver_name }}</span>
+                {% if h.claim %}<span class="badge bg-secondary ms-2">{{ h.claim.reference_no }}</span>{% endif %}
+                <div class="small text-muted mt-1">
+                  {% if h.scheduled_datetime %}Time: {{ h.scheduled_datetime | format_date("%I:%M %p") }}{% endif %}
+                  {% if h.acknowledgement_note %} • <i>{{ h.acknowledgement_note }}</i>{% endif %}
+                </div>
+              </div>
+              {% if h.claim %}
+                <a href="{{ url_for('claims.detail', claim_id=h.claim_id) }}" class="btn btn-sm btn-outline-primary mt-2 mt-sm-0">
+                  View Claim
+                </a>
+              {% endif %}
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="p-4 text-center text-muted small">No handovers scheduled for this date.</div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <!-- Items Lost On This Date -->
+    <div class="col-md-6">
+      <div class="card shadow-sm border rounded-3 bg-white h-100">
+        <div class="card-header bg-white py-3">
+          <h5 class="fw-bold m-0 text-danger"><i class="bi bi-search me-2"></i>Reported Lost On This Day ({{ lost_items | length }})</h5>
+        </div>
+        <div class="card-body p-0">
+          {% if lost_items %}
+            <div class="list-group list-group-flush">
+              {% for it in lost_items %}
+                <a href="{{ url_for('lost.detail', item_id=it._id) }}" class="list-group-item list-group-item-action p-3">
+                  <div class="d-flex justify-content-between">
+                    <span class="fw-bold text-dark">{{ it.name }}</span>
+                    <span class="badge badge-{{ it.stage.lower().replace(' ', '-') }}">{{ it.stage }}</span>
+                  </div>
+                  <div class="small text-muted mt-1">
+                    {{ it.reference_no }} • {{ it.location.name }}
+                  </div>
+                </a>
+              {% endfor %}
+            </div>
+          {% else %}
+            <div class="p-4 text-center text-muted small">No items reported lost on this date.</div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Items Found On This Date -->
+    <div class="col-md-6">
+      <div class="card shadow-sm border rounded-3 bg-white h-100">
+        <div class="card-header bg-white py-3">
+          <h5 class="fw-bold m-0 text-success"><i class="bi bi-box-seam me-2"></i>Items Discovered On This Day ({{ found_items | length }})</h5>
+        </div>
+        <div class="card-body p-0">
+          {% if found_items %}
+            <div class="list-group list-group-flush">
+              {% for it in found_items %}
+                <a href="{{ url_for('found.detail', item_id=it._id) }}" class="list-group-item list-group-item-action p-3">
+                  <div class="d-flex justify-content-between">
+                    <span class="fw-bold text-dark">{{ it.name }}</span>
+                    <span class="badge badge-{{ it.status.lower().replace(' ', '-') }}">{{ it.status }}</span>
+                  </div>
+                  <div class="small text-muted mt-1">
+                    {{ it.reference_no }} • {{ it.location.name }}
+                  </div>
+                </a>
+              {% endfor %}
+            </div>
+          {% else %}
+            <div class="p-4 text-center text-muted small">No items found on this date.</div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

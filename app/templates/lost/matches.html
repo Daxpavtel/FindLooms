@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block title %}Possible Matches for {{ item.reference_no }}{% endblock %}
+
+{% block content %}
+<div class="container py-3" style="max-width: 960px;">
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb mb-2">
+      <li class="breadcrumb-item"><a href="{{ url_for('lost.list_items') }}">Lost Items</a></li>
+      <li class="breadcrumb-item"><a href="{{ url_for('lost.detail', item_id=item._id) }}">{{ item.reference_no }}</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Possible Matches</li>
+    </ol>
+  </nav>
+
+  <div class="page-header d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div>
+      <h1 class="h3 fw-bold mb-1"><i class="bi bi-stars text-warning me-2" aria-hidden="true"></i>Smart Match Candidates</h1>
+      <p class="text-muted small m-0">Algorithmically discovered found items that resemble your lost report: <strong>{{ item.name }}</strong></p>
+    </div>
+    <a href="{{ url_for('lost.detail', item_id=item._id) }}" class="btn btn-outline-secondary btn-sm" style="min-height: 40px; display: inline-flex; align-items: center;">&larr; Back to Report</a>
+  </div>
+
+  {% if matches %}
+    <div class="row g-4">
+      {% for m in matches %}
+        {% set found = m.found_item %}
+        <div class="col-md-6">
+          <div class="card h-100 shadow-sm border rounded-4 overflow-hidden bg-white {% if m.score >= 60 %}border-primary border-2{% endif %}">
+            <div class="card-header bg-white py-3 d-flex flex-wrap justify-content-between align-items-center gap-2 border-bottom">
+              <span class="badge bg-light text-secondary border">{{ found.reference_no }}</span>
+              <div>
+                {% if m.score >= 60 %}
+                  <span class="badge bg-primary fs-6 px-3 py-2"><i class="bi bi-lightning-charge-fill me-1" aria-hidden="true"></i>Strong Match: {{ m.score }}%</span>
+                {% else %}
+                  <span class="badge bg-secondary fs-6 px-3 py-2">Match: {{ m.score }}%</span>
+                {% endif %}
+              </div>
+            </div>
+
+            {% if found.image_path %}
+              <img src="{{ url_for('static', filename=found.image_path) }}" alt="{{ found.name }}" class="item-thumbnail" loading="lazy">
+            {% else %}
+              <div class="item-thumbnail-placeholder">
+                <i class="bi {{ found.category.icon }}" aria-hidden="true"></i>
+              </div>
+            {% endif %}
+
+            <div class="card-body p-4 d-flex flex-column">
+              <h2 class="h5 fw-bold text-dark mb-1">{{ found.name }}</h2>
+              <p class="text-muted small mb-3">{{ found.description }}</p>
+
+              <!-- Explainable Breakdown -->
+              <div class="p-3 bg-light rounded-3 border mb-3 small">
+                <div class="fw-semibold text-secondary mb-1"><i class="bi bi-info-circle me-1" aria-hidden="true"></i>Match Breakdown:</div>
+                <div class="text-dark">{{ m.breakdown.summary }}</div>
+                <div class="d-flex flex-wrap gap-2 mt-2 pt-2 border-top">
+                  <span class="badge bg-white text-dark border">Category: {{ m.breakdown.category_score }}/30</span>
+                  <span class="badge bg-white text-dark border">Location: {{ m.breakdown.location_score }}/25</span>
+                  <span class="badge bg-white text-dark border">Date: {{ m.breakdown.date_score }}/20</span>
+                  <span class="badge bg-white text-dark border">Keywords: {{ m.breakdown.keyword_score }}/10</span>
+                  <span class="badge bg-white text-dark border">TF-IDF: {{ m.breakdown.tfidf_score }}/15</span>
+                </div>
+              </div>
+
+              <div class="small text-secondary mb-3 mt-auto">
+                <div><i class="bi bi-geo-alt me-1" aria-hidden="true"></i>Found at: <b>{{ found.location.name }}</b></div>
+                <div><i class="bi bi-calendar3 me-1" aria-hidden="true"></i>Date Found: <b>{{ found.found_datetime | format_date }}</b></div>
+                <div><i class="bi bi-palette me-1" aria-hidden="true"></i>Color: <b>{{ found.color }}</b></div>
+              </div>
+
+              <div class="d-flex flex-wrap gap-2 pt-2 border-top">
+                <a href="{{ url_for('found.detail', item_id=found._id) }}" class="btn btn-outline-secondary btn-sm flex-grow-1" style="min-height: 44px; display: inline-flex; align-items: center; justify-content: center;">
+                  View Safe Details
+                </a>
+                <a href="{{ url_for('claims.create', found_id=found._id, lost_id=item._id) }}" class="btn btn-success btn-sm flex-grow-1" style="min-height: 44px; display: inline-flex; align-items: center; justify-content: center;">
+                  <i class="bi bi-shield-check me-1" aria-hidden="true"></i>File Claim
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="text-center py-5 bg-white rounded-3 border">
+      <i class="bi bi-stars display-3 text-muted" aria-hidden="true"></i>
+      <h2 class="h4 mt-3 fw-bold text-dark">No Matching Items Yet</h2>
+      <p class="text-muted small">Our algorithm constantly scans incoming found items. You will see matches appear here as items are discovered.</p>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

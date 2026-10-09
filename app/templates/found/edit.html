@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}Edit Found Item - {{ item.reference_no }}{% endblock %}
+
+{% block content %}
+<div class="container py-3" style="max-width: 840px;">
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{{ url_for('found.list_items') }}">Found Items</a></li>
+      <li class="breadcrumb-item"><a href="{{ url_for('found.detail', item_id=item._id) }}">{{ item.reference_no }}</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Edit</li>
+    </ol>
+  </nav>
+
+  <div class="card shadow-sm border rounded-4 p-4 p-md-5 bg-white">
+    <div class="mb-4 border-bottom pb-3">
+      <h3 class="fw-bold text-dark"><i class="bi bi-pencil-square text-success me-2"></i>Edit Found Item</h3>
+      <span class="badge bg-secondary">{{ item.reference_no }}</span>
+    </div>
+
+    <form method="POST" action="{{ url_for('found.edit', item_id=item._id) }}" enctype="multipart/form-data">
+      {{ form.hidden_tag() }}
+
+      <div class="row g-3 mb-3">
+        <div class="col-md-8">
+          <label class="form-label fw-semibold" for="name">{{ form.name.label }}</label>
+          {{ form.name(class="form-control" + (" is-invalid" if form.name.errors else "")) }}
+        </div>
+        <div class="col-md-4">
+          <label class="form-label fw-semibold" for="category_id">{{ form.category_id.label }}</label>
+          {{ form.category_id(class="form-select") }}
+        </div>
+      </div>
+
+      <div class="row g-3 mb-3">
+        <div class="col-md-6">
+          <label class="form-label fw-semibold" for="brand">{{ form.brand.label }}</label>
+          {{ form.brand(class="form-control") }}
+        </div>
+        <div class="col-md-6">
+          <label class="form-label fw-semibold" for="color">{{ form.color.label }}</label>
+          {{ form.color(class="form-control") }}
+        </div>
+      </div>
+
+      <div class="row g-3 mb-3">
+        <div class="col-md-4">
+          <label class="form-label fw-semibold" for="found_date">{{ form.found_date.label }}</label>
+          {{ form.found_date(class="form-control") }}
+        </div>
+        <div class="col-md-4">
+          <label class="form-label fw-semibold" for="found_location_id">{{ form.found_location_id.label }}</label>
+          {{ form.found_location_id(class="form-select") }}
+        </div>
+        <div class="col-md-4">
+          <label class="form-label fw-semibold" for="custody_location">{{ form.custody_location.label }}</label>
+          {{ form.custody_location(class="form-control") }}
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label fw-semibold" for="description">{{ form.description.label }}</label>
+        {{ form.description(class="form-control", rows="3") }}
+      </div>
+
+      <div class="p-3 bg-secondary-subtle border border-secondary-subtle rounded-3 mb-3">
+        <label class="form-label fw-bold text-dark" for="private_details">
+          <i class="bi bi-shield-lock-fill text-danger me-1"></i>{{ form.private_details.label }}
+        </label>
+        {{ form.private_details(class="form-control", rows="2") }}
+      </div>
+
+      <div class="mb-4">
+        <label class="form-label fw-semibold" for="image">{{ form.image.label }}</label>
+        {{ form.image(class="form-control") }}
+      </div>
+
+      <div class="d-flex justify-content-between">
+        <a href="{{ url_for('found.detail', item_id=item._id) }}" class="btn btn-outline-secondary">Cancel</a>
+        <button type="submit" class="btn btn-success px-4">Update Item</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

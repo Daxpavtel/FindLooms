@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% block title %}Kanban Workflow Board{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-2">
+  <!-- Board Header & Filters -->
+  <div class="page-header d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3 pb-2 border-bottom">
+    <div>
+      <h1 class="h3 fw-bold mb-1"><i class="bi bi-kanban text-primary me-2" aria-hidden="true"></i>Custody & Workflow Kanban Board</h1>
+      <p class="text-muted small m-0">Drag-free server-side state machine. Move items across stages using verified workflow buttons.</p>
+    </div>
+
+    <!-- GET Filter Form -->
+    <form method="GET" action="{{ url_for('kanban.board') }}" class="d-flex flex-wrap gap-2 align-items-center" role="search" aria-label="Filter Kanban board">
+      <select name="type" class="form-select form-select-sm" style="width: auto; min-height: 38px;" aria-label="Filter by item type">
+        <option value="all" {% if current_type == 'all' %}selected{% endif %}>All Items</option>
+        <option value="lost" {% if current_type == 'lost' %}selected{% endif %}>Lost Only</option>
+        <option value="found" {% if current_type == 'found' %}selected{% endif %}>Found Only</option>
+      </select>
+
+      <select name="category" class="form-select form-select-sm" style="width: auto; min-height: 38px;" aria-label="Filter by category">
+        <option value="">All Categories</option>
+        {% for cat in categories %}
+          <option value="{{ cat._id }}" {% if current_category == (cat._id|string) %}selected{% endif %}>
+            {{ cat.name }}
+          </option>
+        {% endfor %}
+      </select>
+
+      <select name="location" class="form-select form-select-sm" style="width: auto; min-height: 38px;" aria-label="Filter by location">
+        <option value="">All Locations</option>
+        {% for loc in locations %}
+          <option value="{{ loc._id }}" {% if current_location == (loc._id|string) %}selected{% endif %}>
+            {{ loc.name }}
+          </option>
+        {% endfor %}
+      </select>
+
+      <button type="submit" class="btn btn-sm btn-primary" style="min-height: 38px; display: inline-flex; align-items: center;">Filter</button>
+      <a href="{{ url_for('kanban.board') }}" class="btn btn-sm btn-outline-secondary" style="min-height: 38px; display: inline-flex; align-items: center;" title="Reset" aria-label="Reset filters"><i class="bi bi-arrow-clockwise" aria-hidden="true"></i></a>
+    </form>
+  </div>
+
+  <!-- Kanban Columns (Pure CSS) -->
+  <div class="kanban-board">
+    {% for stage in stages %}
+      {% set cards = columns[stage] %}
+      <div class="kanban-column">
+        <div class="kanban-column-header">
+          <span>{{ stage }}</span>
+          <span class="badge bg-secondary rounded-pill">{{ cards | length }}</span>
+        </div>
+
+        <div class="kanban-cards">
+          {% for card in cards %}
+            <div class="kanban-card">
+              <!-- Header Badges -->
+              <div class="d-flex justify-content-between align-items-start mb-2">
+                <span class="badge {% if card.item_type == 'lost' %}bg-danger-subtle text-danger border border-danger-subtle{% else %}bg-success-subtle text-success border border-success-subtle{% endif %} small">
+                  {{ card.item_type | upper }}: {{ card.reference_no }}
+                </span>
+                
+                <!-- Age indicator (amber >= 7 days, red >= 14 days) -->
+                <span class="badge bg-{{ card.age_class }} text-white small" title="Days since creation">
+                  <i class="bi bi-clock me-1"></i>{{ card.age_days }}d
+                </span>
+              </div>
+
+              <!-- Title & Category -->
+              <div class="kanban-card-title">
+                <a href="{{ url_for(card.item_type + '.detail', item_id=card._id) }}" class="text-decoration-none text-dark">
+                  <i class="bi {{ card.category.icon }} text-secondary me-1"></i>{{ card.name }}
+                </a>
+              </div>
+
+              <div class="small text-muted mb-2 text-truncate">
+                {{ card.description }}
+              </div>
+
+              <!-- Metadata row -->
+              <div class="small text-secondary mb-2">
+                <div><i class="bi bi-geo-alt me-1"></i>{{ card.location.name }}</div>
+                {% if card.color %}<div><i class="bi bi-palette me-1"></i>{{ card.color }}</div>{% endif %}
+              </div>
+
+              <!-- Top Match Badge if present -->
+              {% if card.top_score %}
+                <div class="mb-2">
+                  <span class="badge {% if card.top_score >= 60 %}bg-primary{% else %}bg-secondary{% endif %}">
+                    <i class="bi bi-stars me-1"></i>Match: {{ card.top_score }}%
+                  </span>
+                </div>
+              {% endif %}
+
+              <!-- Move To Stage Form (Server-side POST) -->
+              {% if card.allowed_next %}
+                <div class="border-top pt-2 mt-2">
+                  <form method="POST" action="{{ url_for('kanban.move_card') }}" class="d-flex gap-2 align-items-center">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="item_type" value="{{ card.item_type }}">
+                    <input type="hidden" name="item_id" value="{{ card._id }}">
+                    
+                    <select name="target_stage" class="form-select form-select-sm" style="min-height: 38px; font-size: 0.85rem;" aria-label="Target stage for {{ card.name }}">
+                      {% for nxt in card.allowed_next %}
+                        <option value="{{ nxt }}">Move &rarr; {{ nxt }}</option>
+                      {% endfor %}
+                    </select>
+
+                    <button type="submit" class="btn btn-sm btn-outline-primary" style="min-height: 38px; font-size: 0.85rem; white-space: nowrap; padding: 0.35rem 0.75rem;">
+                      Go
+                    </button>
+                  </form>
+                </div>
+              {% else %}
+                <div class="border-top pt-2 mt-2 text-center text-muted" style="font-size: 0.8rem;">
+                  <i class="bi bi-lock-fill me-1" aria-hidden="true"></i>Terminal Stage
+                </div>
+              {% endif %}
+            </div>
+          {% else %}
+            <div class="text-center text-muted py-4 small">
+              No items in this stage.
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

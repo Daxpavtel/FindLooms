@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+{% block title %}Found Items Catalog{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-2">
+  <!-- Page Header -->
+  <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-3 mb-4 pb-3 border-bottom">
+    <div>
+      <h1 class="h2 fw-bold mb-1 text-dark"><i class="bi bi-box-seam text-success me-2" aria-hidden="true"></i>Found Items Catalog</h1>
+      <p class="text-muted small m-0">Showing {{ total }} items turned in and safely logged into custody.</p>
+    </div>
+    <div>
+      <a href="{{ url_for('found.create') }}" class="btn btn-success shadow-sm">
+        <i class="bi bi-plus-circle me-1" aria-hidden="true"></i>Register Found Item
+      </a>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <!-- Filter Panel (<details> on mobile, Sidebar on Desktop) -->
+    <div class="col-12 col-lg-3">
+      <details class="filter-accordion" {% if current_category or current_status or search_query %}open{% endif %}>
+        <summary class="filter-summary">
+          <span><i class="bi bi-funnel text-success me-2" aria-hidden="true"></i>Filter & Search</span>
+        </summary>
+        <form method="GET" action="{{ url_for('found.list_items') }}" class="d-flex flex-column gap-3 mt-3">
+          <div>
+            <label class="form-label small" for="search-input">Search Query</label>
+            <div class="input-group">
+              <span class="input-group-text bg-light"><i class="bi bi-search" aria-hidden="true"></i></span>
+              <input type="text" id="search-input" name="q" value="{{ search_query }}" class="form-control" placeholder="Title, brand, ref...">
+            </div>
+          </div>
+
+          <div>
+            <label class="form-label small" for="category-select">Category</label>
+            <select id="category-select" name="category" class="form-select">
+              <option value="">All Categories</option>
+              {% for cat in categories %}
+                <option value="{{ cat._id }}" {% if current_category == (cat._id|string) %}selected{% endif %}>
+                  {{ cat.name }}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div>
+            <label class="form-label small" for="status-select">Item Status</label>
+            <select id="status-select" name="status" class="form-select">
+              <option value="">All Statuses</option>
+              <option value="Unmatched" {% if current_status == 'Unmatched' %}selected{% endif %}>Unmatched</option>
+              <option value="Possible Match" {% if current_status == 'Possible Match' %}selected{% endif %}>Possible Match</option>
+              <option value="Claimed" {% if current_status == 'Claimed' %}selected{% endif %}>Claimed</option>
+              <option value="Returned" {% if current_status == 'Returned' %}selected{% endif %}>Returned</option>
+              <option value="Archived" {% if current_status == 'Archived' %}selected{% endif %}>Archived</option>
+            </select>
+          </div>
+
+          <div class="d-flex gap-2 pt-2">
+            <button type="submit" class="btn btn-success flex-grow-1">Apply Filters</button>
+            <a href="{{ url_for('found.list_items') }}" class="btn btn-outline-secondary" title="Reset Filters" aria-label="Reset Filters">
+              <i class="bi bi-arrow-clockwise" aria-hidden="true"></i>
+            </a>
+          </div>
+        </form>
+      </details>
+    </div>
+
+    <!-- Main Results Column -->
+    <div class="col-12 col-lg-9">
+      {% if items %}
+        <div class="lf-card-grid mb-4">
+          {% for it in items %}
+            <article class="card h-100 shadow-sm border rounded-3 overflow-hidden bg-white d-flex flex-column" aria-labelledby="item-title-{{ it._id }}">
+              {% if it.image_path %}
+                <img src="{{ url_for('static', filename=it.image_path) }}" alt="{{ it.name }}" class="item-thumbnail" loading="lazy">
+              {% else %}
+                <div class="item-thumbnail-placeholder" aria-hidden="true">
+                  <i class="bi {{ it.category.icon }}"></i>
+                </div>
+              {% endif %}
+
+              <div class="card-body d-flex flex-column p-3 flex-grow-1">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <span class="badge bg-light text-secondary border small">{{ it.reference_no }}</span>
+                  <span class="badge badge-{{ it.status.lower().replace(' ', '-') }}">{{ it.status }}</span>
+                </div>
+
+                <h2 id="item-title-{{ it._id }}" class="h6 fw-bold text-dark mb-1 text-truncate" title="{{ it.name }}">{{ it.name }}</h2>
+                <p class="text-muted small mb-2 text-truncate" style="max-height: 2.8em; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; white-space: normal;">
+                  {{ it.description }}
+                </p>
+
+                <div class="small text-secondary mb-3 mt-auto border-top pt-2">
+                  <div class="text-truncate"><i class="bi bi-geo-alt text-success me-1" aria-hidden="true"></i>{{ it.location.name }}</div>
+                  <div><i class="bi bi-calendar3 me-1" aria-hidden="true"></i>Found: {{ it.found_datetime | format_date }}</div>
+                  {% if it.color %}<div class="text-truncate"><i class="bi bi-palette me-1" aria-hidden="true"></i>Color: {{ it.color }}</div>{% endif %}
+                </div>
+
+                <a href="{{ url_for('found.detail', item_id=it._id) }}" class="btn btn-sm btn-outline-success w-100">
+                  View Item
+                </a>
+              </div>
+            </article>
+          {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% if total_pages > 1 %}
+          <nav aria-label="Page navigation">
+            <ul class="pagination">
+              <li class="page-item {% if page <= 1 %}disabled{% endif %}">
+                <a class="page-link" href="{{ url_for('found.list_items', page=page-1, category=current_category, status=current_status, q=search_query) }}" aria-label="Previous Page">&laquo; Prev</a>
+              </li>
+              {% for p in range(1, total_pages + 1) %}
+                <li class="page-item {% if p == page %}active{% endif %}">
+                  <a class="page-link" href="{{ url_for('found.list_items', page=p, category=current_category, status=current_status, q=search_query) }}" {% if p == page %}aria-current="page"{% endif %}>{{ p }}</a>
+                </li>
+              {% endfor %}
+              <li class="page-item {% if page >= total_pages %}disabled{% endif %}">
+                <a class="page-link" href="{{ url_for('found.list_items', page=page+1, category=current_category, status=current_status, q=search_query) }}" aria-label="Next Page">Next &raquo;</a>
+              </li>
+            </ul>
+          </nav>
+        {% endif %}
+
+      {% else %}
+        <!-- Empty State -->
+        <div class="card p-5 text-center bg-white rounded-4 border shadow-sm">
+          <div class="display-3 text-muted mb-3" aria-hidden="true">
+            <i class="bi bi-box-seam"></i>
+          </div>
+          <h2 class="h4 fw-bold text-dark">No Found Items Found</h2>
+          <p class="text-muted small mb-4" style="max-width: 440px; margin: 0 auto;">No turned-in items matched your current search filters. You can clear your filters or register a newly discovered item.</p>
+          <div class="d-flex justify-content-center gap-2 flex-wrap">
+            <a href="{{ url_for('found.list_items') }}" class="btn btn-outline-secondary btn-sm">Clear Filters</a>
+            <a href="{{ url_for('found.create') }}" class="btn btn-success btn-sm">Register Found Item</a>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}LostFound{% endblock %} - Smart Lost & Found System</title>
+  <!-- Bootstrap 5 CSS CDN (CSS Only, Zero JS) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+  <!-- Bootstrap Icons CDN (CSS Only) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <!-- Unified Design System (Pure CSS) -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <!-- Accessibility: Skip to Content Link -->
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <!-- Header / Navigation (Pure HTML & CSS - Zero Client JS) -->
+  <header class="lf-header" role="banner">
+    <div class="lf-nav-container">
+      <a href="{{ url_for('index') }}" class="lf-brand" aria-label="LostFound Home">
+        <i class="bi bi-compass-fill me-2" aria-hidden="true"></i>
+        <span>Lost<span class="text-primary">Found</span></span>
+      </a>
+
+      <!-- CSS-Only Hamburger Toggle for Mobile/Tablet -->
+      <input type="checkbox" id="nav-toggle" class="lf-nav-toggle-input" aria-label="Toggle navigation menu">
+      <label for="nav-toggle" class="lf-nav-toggle-label" tabindex="0" role="button" aria-controls="nav-menu" aria-label="Toggle navigation menu">
+        <i class="bi bi-list" aria-hidden="true"></i>
+      </label>
+
+      <!-- Navigation Content -->
+      <div id="nav-menu" class="lf-nav-content">
+        <!-- Main Navigation Links -->
+        <nav class="lf-nav-links" aria-label="Main Navigation">
+          {% if current_user.is_authenticated %}
+            <a href="{{ url_for('auth.dashboard') }}" class="lf-nav-btn {% if request.endpoint == 'auth.dashboard' %}active{% endif %}" {% if request.endpoint == 'auth.dashboard' %}aria-current="page"{% endif %}>
+              <i class="bi bi-speedometer2 text-primary me-1" aria-hidden="true"></i>Dashboard
+            </a>
+          {% endif %}
+
+          <a href="{{ url_for('lost.list_items') }}" class="lf-nav-btn {% if request.endpoint and request.endpoint.startswith('lost.') %}active{% endif %}" {% if request.endpoint and request.endpoint.startswith('lost.') %}aria-current="page"{% endif %}>
+            <i class="bi bi-search text-danger me-1" aria-hidden="true"></i>Lost Reports
+          </a>
+          <a href="{{ url_for('found.list_items') }}" class="lf-nav-btn {% if request.endpoint and request.endpoint.startswith('found.') %}active{% endif %}" {% if request.endpoint and request.endpoint.startswith('found.') %}aria-current="page"{% endif %}>
+            <i class="bi bi-box-seam text-success me-1" aria-hidden="true"></i>Found Items
+          </a>
+
+          {% if current_user.is_authenticated %}
+            <a href="{{ url_for('claims.my_claims') }}" class="lf-nav-btn {% if request.endpoint == 'claims.my_claims' %}active{% endif %}" {% if request.endpoint == 'claims.my_claims' %}aria-current="page"{% endif %}>
+              <i class="bi bi-file-earmark-check text-success me-1" aria-hidden="true"></i>My Claims
+            </a>
+          {% endif %}
+
+          <a href="{{ url_for('views.map_view') }}" class="lf-nav-btn {% if request.endpoint == 'views.map_view' %}active{% endif %}" {% if request.endpoint == 'views.map_view' %}aria-current="page"{% endif %}>
+            <i class="bi bi-geo-alt text-primary me-1" aria-hidden="true"></i>Map
+          </a>
+          <a href="{{ url_for('views.calendar_view') }}" class="lf-nav-btn {% if request.endpoint and 'calendar' in request.endpoint %}active{% endif %}" {% if request.endpoint and 'calendar' in request.endpoint %}aria-current="page"{% endif %}>
+            <i class="bi bi-calendar3 text-primary me-1" aria-hidden="true"></i>Calendar
+          </a>
+
+          {% if current_user.is_authenticated and current_user.is_staff %}
+            <a href="{{ url_for('kanban.board') }}" class="lf-nav-btn {% if request.endpoint and request.endpoint.startswith('kanban.') %}active{% endif %}" {% if request.endpoint and request.endpoint.startswith('kanban.') %}aria-current="page"{% endif %}>
+              <i class="bi bi-kanban text-primary me-1" aria-hidden="true"></i>Kanban
+            </a>
+            <a href="{{ url_for('claims.queue') }}" class="lf-nav-btn {% if request.endpoint == 'claims.queue' %}active{% endif %}" {% if request.endpoint == 'claims.queue' %}aria-current="page"{% endif %}>
+              <i class="bi bi-check2-square text-info me-1" aria-hidden="true"></i>Review Claims
+            </a>
+            <a href="{{ url_for('reports.index') }}" class="lf-nav-btn {% if request.endpoint and request.endpoint.startswith('reports.') %}active{% endif %}" {% if request.endpoint and request.endpoint.startswith('reports.') %}aria-current="page"{% endif %}>
+              <i class="bi bi-bar-chart text-dark me-1" aria-hidden="true"></i>Reports
+            </a>
+          {% endif %}
+
+          {% if current_user.is_authenticated and current_user.is_admin %}
+            <a href="{{ url_for('admin.categories') }}" class="lf-nav-btn {% if request.endpoint and 'categories' in request.endpoint %}active{% endif %}" {% if request.endpoint and 'categories' in request.endpoint %}aria-current="page"{% endif %}>
+              <i class="bi bi-tags text-primary me-1" aria-hidden="true"></i>Categories
+            </a>
+            <a href="{{ url_for('admin.locations') }}" class="lf-nav-btn {% if request.endpoint and 'locations' in request.endpoint %}active{% endif %}" {% if request.endpoint and 'locations' in request.endpoint %}aria-current="page"{% endif %}>
+              <i class="bi bi-pin-map text-primary me-1" aria-hidden="true"></i>Locations
+            </a>
+            <a href="{{ url_for('admin.settings') }}" class="lf-nav-btn {% if request.endpoint == 'admin.settings' %}active{% endif %}" {% if request.endpoint == 'admin.settings' %}aria-current="page"{% endif %}>
+              <i class="bi bi-gear text-secondary me-1" aria-hidden="true"></i>Settings
+            </a>
+            <a href="{{ url_for('admin.users') }}" class="lf-nav-btn {% if request.endpoint and 'users' in request.endpoint %}active{% endif %}" {% if request.endpoint and 'users' in request.endpoint %}aria-current="page"{% endif %}>
+              <i class="bi bi-people text-info me-1" aria-hidden="true"></i>Users
+            </a>
+            <a href="{{ url_for('admin.archive_panel') }}" class="lf-nav-btn {% if request.endpoint and 'archive' in request.endpoint %}active{% endif %}" {% if request.endpoint and 'archive' in request.endpoint %}aria-current="page"{% endif %}>
+              <i class="bi bi-archive text-warning me-1" aria-hidden="true"></i>Archive
+            </a>
+            <a href="{{ url_for('admin.audit') }}" class="lf-nav-btn {% if request.endpoint == 'admin.audit' %}active{% endif %}" {% if request.endpoint == 'admin.audit' %}aria-current="page"{% endif %}>
+              <i class="bi bi-journal-text text-dark me-1" aria-hidden="true"></i>Audit Log
+            </a>
+          {% endif %}
+        </nav>
+
+        <!-- User Controls / Auth -->
+        <div class="lf-nav-auth" aria-label="User Navigation">
+          {% if current_user.is_authenticated %}
+            <a href="{{ url_for('auth.profile') }}" class="lf-nav-btn {% if request.endpoint == 'auth.profile' %}active{% endif %}" {% if request.endpoint == 'auth.profile' %}aria-current="page"{% endif %} title="Profile ({{ current_user.role }})">
+              <i class="bi bi-person-circle text-secondary me-1" aria-hidden="true"></i>Profile
+            </a>
+            <form action="{{ url_for('auth.logout') }}" method="POST" class="d-inline m-0 p-0">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button type="submit" class="lf-nav-btn lf-nav-btn-logout" title="Sign Out" aria-label="Sign Out">
+                <i class="bi bi-box-arrow-right text-danger me-1" aria-hidden="true"></i>Sign Out
+              </button>
+            </form>
+          {% else %}
+            <a href="{{ url_for('auth.login') }}" class="lf-nav-btn {% if request.endpoint == 'auth.login' %}active{% endif %}" {% if request.endpoint == 'auth.login' %}aria-current="page"{% endif %}>
+              <i class="bi bi-box-arrow-in-right text-primary me-1" aria-hidden="true"></i>Sign In
+            </a>
+            <a href="{{ url_for('auth.register') }}" class="lf-nav-btn lf-nav-btn-primary {% if request.endpoint == 'auth.register' %}active{% endif %}" {% if request.endpoint == 'auth.register' %}aria-current="page"{% endif %}>
+              <i class="bi bi-person-plus me-1" aria-hidden="true"></i>Register
+            </a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Flash Messages -->
+  <div class="container-fluid px-3 px-md-4 mt-3" style="max-width: 1440px;">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          {% set cat_class = 'danger' if category in ['danger', 'error'] else ('success' if category == 'success' else ('warning' if category == 'warning' else 'info')) %}
+          <div class="alert alert-{{ cat_class }} shadow-sm" role="alert">
+            <i class="bi bi-info-circle-fill fs-5" aria-hidden="true"></i>
+            <div class="flex-grow-1">{{ message }}</div>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+  </div>
+
+  <!-- Main Content Area -->
+  <main id="main-content" class="container-fluid px-3 px-md-4 py-3" style="max-width: 1440px;">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Footer -->
+  <footer class="mt-auto border-top py-3 text-muted" role="contentinfo">
+    <div class="container-fluid px-3 px-md-4 d-flex flex-wrap justify-content-between align-items-center gap-2" style="max-width: 1440px;">
+      <div class="small">
+        &copy; 2026 <strong>LostFound: The Smart Lost & Found Management System</strong>. Enterprise Ready.
+      </div>
+      <div class="small text-muted">
+        <i class="bi bi-shield-check text-success me-1" aria-hidden="true"></i>Strictly Server-Side Rendered (Zero Client JS) • Role-Based Security
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

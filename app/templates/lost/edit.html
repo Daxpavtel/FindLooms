@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block title %}Edit Lost Report - {{ item.reference_no }}{% endblock %}
+
+{% block content %}
+<div class="container py-3" style="max-width: 840px;">
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{{ url_for('lost.list_items') }}">Lost Items</a></li>
+      <li class="breadcrumb-item"><a href="{{ url_for('lost.detail', item_id=item._id) }}">{{ item.reference_no }}</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Edit</li>
+    </ol>
+  </nav>
+
+  <div class="card shadow-sm border rounded-4 p-4 p-md-5 bg-white">
+    <div class="mb-4 border-bottom pb-3">
+      <h3 class="fw-bold text-dark"><i class="bi bi-pencil-square text-primary me-2"></i>Edit Lost Report</h3>
+      <span class="badge bg-secondary">{{ item.reference_no }}</span>
+    </div>
+
+    <form method="POST" action="{{ url_for('lost.edit', item_id=item._id) }}" enctype="multipart/form-data">
+      {{ form.hidden_tag() }}
+
+      <div class="row g-3 mb-3">
+        <div class="col-md-8">
+          <label class="form-label fw-semibold" for="name">{{ form.name.label }}</label>
+          {{ form.name(class="form-control" + (" is-invalid" if form.name.errors else "")) }}
+          {% for error in form.name.errors %}
+            <div class="invalid-feedback">{{ error }}</div>
+          {% endfor %}
+        </div>
+        <div class="col-md-4">
+          <label class="form-label fw-semibold" for="category_id">{{ form.category_id.label }}</label>
+          {{ form.category_id(class="form-select" + (" is-invalid" if form.category_id.errors else "")) }}
+        </div>
+      </div>
+
+      <div class="row g-3 mb-3">
+        <div class="col-md-6">
+          <label class="form-label fw-semibold" for="brand">{{ form.brand.label }}</label>
+          {{ form.brand(class="form-control") }}
+        </div>
+        <div class="col-md-6">
+          <label class="form-label fw-semibold" for="color">{{ form.color.label }}</label>
+          {{ form.color(class="form-control") }}
+        </div>
+      </div>
+
+      <div class="row g-3 mb-3">
+        <div class="col-md-4">
+          <label class="form-label fw-semibold" for="lost_date">{{ form.lost_date.label }}</label>
+          {{ form.lost_date(class="form-control") }}
+        </div>
+        <div class="col-md-4">
+          <label class="form-label fw-semibold" for="approx_time">{{ form.approx_time.label }}</label>
+          {{ form.approx_time(class="form-control") }}
+        </div>
+        <div class="col-md-4">
+          <label class="form-label fw-semibold" for="last_seen_location_id">{{ form.last_seen_location_id.label }}</label>
+          {{ form.last_seen_location_id(class="form-select") }}
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label fw-semibold" for="description">{{ form.description.label }}</label>
+        {{ form.description(class="form-control", rows="3") }}
+      </div>
+
+      <div class="p-3 bg-danger-subtle border border-danger-subtle rounded-3 mb-3">
+        <label class="form-label fw-bold text-danger" for="private_verification_detail">
+          <i class="bi bi-shield-lock-fill me-1"></i>{{ form.private_verification_detail.label }}
+        </label>
+        {{ form.private_verification_detail(class="form-control", rows="2") }}
+      </div>
+
+      <div class="mb-4">
+        <label class="form-label fw-semibold" for="image">{{ form.image.label }}</label>
+        {{ form.image(class="form-control") }}
+      </div>
+
+      <div class="d-flex justify-content-between">
+        <a href="{{ url_for('lost.detail', item_id=item._id) }}" class="btn btn-outline-secondary">Cancel</a>
+        <button type="submit" class="btn btn-primary px-4">Update Report</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

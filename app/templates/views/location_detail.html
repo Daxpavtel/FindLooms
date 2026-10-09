@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block title %}Location: {{ location.name }}{% endblock %}
+
+{% block content %}
+<div class="container py-3" style="max-width: 960px;">
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb mb-2">
+      <li class="breadcrumb-item"><a href="{{ url_for('views.map_view') }}">Campus Map</a></li>
+      <li class="breadcrumb-item active" aria-current="page">{{ location.name }}</li>
+    </ol>
+  </nav>
+
+  <!-- Location Header -->
+  <div class="card shadow-sm border rounded-4 p-3 p-sm-4 mb-4 bg-white">
+    <div class="page-header d-flex flex-wrap justify-content-between align-items-center gap-3">
+      <div>
+        <h1 class="h3 fw-bold mb-1"><i class="bi bi-geo-alt-fill text-danger me-2" aria-hidden="true"></i>{{ location.name }}</h1>
+        <p class="text-muted small m-0">
+          Building: <strong>{{ location.building }}</strong> • Zone: <strong>{{ location.zone }}</strong>
+          {% if location.venue %} • Venue: {{ location.venue }}{% endif %}
+        </p>
+      </div>
+      <div>
+        <a href="{{ url_for('views.map_view') }}" class="btn btn-outline-secondary btn-sm" style="min-height: 40px; display: inline-flex; align-items: center;">&larr; Return to Map</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <!-- Active Lost Items at this Location -->
+    <div class="col-md-6">
+      <div class="card shadow-sm border rounded-3 bg-white h-100">
+        <div class="card-header bg-white py-3">
+          <h5 class="fw-bold m-0"><i class="bi bi-search text-danger me-2"></i>Active Lost Reports ({{ lost_items | length }})</h5>
+        </div>
+        <div class="card-body p-0">
+          {% if lost_items %}
+            <div class="list-group list-group-flush">
+              {% for it in lost_items %}
+                <a href="{{ url_for('lost.detail', item_id=it._id) }}" class="list-group-item list-group-item-action p-3">
+                  <div class="d-flex justify-content-between">
+                    <span class="fw-bold text-dark">{{ it.name }}</span>
+                    <span class="badge badge-{{ it.stage.lower().replace(' ', '-') }}">{{ it.stage }}</span>
+                  </div>
+                  <div class="small text-muted mt-1">
+                    {{ it.reference_no }} • Lost: {{ it.lost_date | format_date }}
+                  </div>
+                </a>
+              {% endfor %}
+            </div>
+          {% else %}
+            <div class="p-4 text-center text-muted small">No active lost reports at this location.</div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Active Found Items at this Location -->
+    <div class="col-md-6">
+      <div class="card shadow-sm border rounded-3 bg-white h-100">
+        <div class="card-header bg-white py-3">
+          <h5 class="fw-bold m-0"><i class="bi bi-box-seam text-success me-2"></i>Active Found Items ({{ found_items | length }})</h5>
+        </div>
+        <div class="card-body p-0">
+          {% if found_items %}
+            <div class="list-group list-group-flush">
+              {% for it in found_items %}
+                <a href="{{ url_for('found.detail', item_id=it._id) }}" class="list-group-item list-group-item-action p-3">
+                  <div class="d-flex justify-content-between">
+                    <span class="fw-bold text-dark">{{ it.name }}</span>
+                    <span class="badge badge-{{ it.status.lower().replace(' ', '-') }}">{{ it.status }}</span>
+                  </div>
+                  <div class="small text-muted mt-1">
+                    {{ it.reference_no }} • Found: {{ it.found_datetime | format_date }}
+                  </div>
+                </a>
+              {% endfor %}
+            </div>
+          {% else %}
+            <div class="p-4 text-center text-muted small">No active found items at this location.</div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

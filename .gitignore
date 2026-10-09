@@ -1,0 +1,34 @@
+# Python bytecode and caches
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Virtual environments
+venv/
+.venv/
+env/
+ENV/
+
+# Environment configurations and secrets
+.env
+.env.local
+
+# User uploads and runtime storage (preserve directory via .gitkeep)
+app/static/uploads/*
+!app/static/uploads/.gitkeep
+uploads/
+
+# Logs and runtime diagnostics
+logs/
+*.log
+
+# OS metadata
+.DS_Store
+Thumbs.db
+
+# IDE and editor settings
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace

@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}User Profile{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center py-3 py-md-4">
+  <div class="col-12" style="max-width: 580px;">
+    <div class="card shadow-sm border rounded-4 p-4 p-sm-5 bg-white">
+      <div class="d-flex align-items-center mb-4 flex-wrap gap-3">
+        <div class="bg-primary text-white rounded-circle p-3 fs-3 d-flex align-items-center justify-content-center" style="width: 56px; height: 56px;" aria-hidden="true">
+          <i class="bi bi-person"></i>
+        </div>
+        <div class="flex-grow-1">
+          <h1 class="h3 fw-bold m-0 text-dark">{{ current_user.name }}</h1>
+          <span class="badge bg-secondary text-uppercase">{{ current_user.role }}</span>
+          <span class="text-muted small ms-2">{{ current_user.email }}</span>
+        </div>
+      </div>
+
+      <form method="POST" action="{{ url_for('auth.profile') }}">
+        {{ form.hidden_tag() }}
+
+        <div class="mb-3">
+          <label class="form-label fw-semibold" for="name">{{ form.name.label }}</label>
+          {{ form.name(class="form-control" + (" is-invalid" if form.name.errors else ""), autocomplete="name") }}
+          {% for error in form.name.errors %}
+            <div class="invalid-feedback">{{ error }}</div>
+          {% endfor %}
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label fw-semibold" for="department">{{ form.department.label }}</label>
+          {{ form.department(class="form-control", placeholder="e.g. Computer Science", autocomplete="organization") }}
+        </div>
+
+        <div class="mb-4">
+          <label class="form-label fw-semibold" for="phone">{{ form.phone.label }}</label>
+          {{ form.phone(class="form-control", placeholder="+1 (555) 019-2831", autocomplete="tel", inputmode="tel") }}
+        </div>
+
+        <div class="d-flex flex-column flex-sm-row justify-content-between gap-2 pt-2 border-top">
+          <a href="{{ url_for('auth.dashboard') }}" class="btn btn-outline-secondary order-2 order-sm-1">Cancel</a>
+          {{ form.submit(class="btn btn-primary px-4 order-1 order-sm-2") }}
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

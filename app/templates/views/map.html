@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Campus Map View{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-2">
+  <div class="page-header d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3 pb-2 border-bottom">
+    <div>
+      <h1 class="h3 fw-bold mb-1"><i class="bi bi-geo-alt-fill text-danger me-2" aria-hidden="true"></i>Campus Incident & Custody Map</h1>
+      <p class="text-muted small m-0">
+        <i class="bi bi-geo-alt text-primary me-1" aria-hidden="true"></i><strong>Indus University</strong>, Rancharda, Via Shilaj, Gujarat 382115 • Track active lost reports and found custody points.
+      </p>
+    </div>
+
+    <!-- GET Filter Form -->
+    <form method="GET" action="{{ url_for('views.map_view') }}" class="d-flex flex-wrap gap-2 align-items-center" role="search" aria-label="Filter campus map">
+      <select name="zone" class="form-select form-select-sm" style="width: auto; min-height: 38px;" aria-label="Filter by zone">
+        <option value="">All Campus Zones</option>
+        {% for z in zones %}
+          <option value="{{ z }}" {% if current_zone == z %}selected{% endif %}>{{ z }}</option>
+        {% endfor %}
+      </select>
+
+      <select name="building" class="form-select form-select-sm" style="width: auto; min-height: 38px;" aria-label="Filter by building">
+        <option value="">All Buildings</option>
+        {% for b in buildings %}
+          <option value="{{ b }}" {% if current_building == b %}selected{% endif %}>{{ b }}</option>
+        {% endfor %}
+      </select>
+
+      <button type="submit" class="btn btn-sm btn-primary" style="min-height: 38px; display: inline-flex; align-items: center;">Filter Map</button>
+      <a href="{{ url_for('views.map_view') }}" class="btn btn-sm btn-outline-secondary" style="min-height: 38px; display: inline-flex; align-items: center;" title="Reset" aria-label="Reset map filters"><i class="bi bi-arrow-clockwise" aria-hidden="true"></i></a>
+    </form>
+  </div>
+
+  <!-- Map Container with Embedded Folium Server-Rendered Frame -->
+  <div class="map-container shadow-sm mb-3">
+    <iframe src="{{ url_for('views.map_embed', zone=current_zone, building=current_building) }}"
+            title="Folium Campus Map">
+    </iframe>
+  </div>
+</div>
+{% endblock %}

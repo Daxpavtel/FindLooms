@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+{% block title %}Manage Locations - Admin{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-3">
+  <div class="page-header d-flex flex-wrap justify-content-between align-items-center mb-4 pb-2 border-bottom gap-3">
+    <div>
+      <h1 class="h3 fw-bold mb-1"><i class="bi bi-pin-map text-primary me-2" aria-hidden="true"></i>Campus Locations Management</h1>
+      <p class="text-muted small m-0">Define facilities, coordinates, buildings, and zones for incident mapping.</p>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <!-- Location Creation Form -->
+    <div class="col-12 col-lg-4">
+      <div class="card shadow-sm border rounded-4 p-3 p-sm-4 bg-white">
+        <h2 class="h5 fw-bold mb-3">Add Location</h2>
+        <form method="POST" action="{{ url_for('admin.locations') }}">
+          {{ form.hidden_tag() }}
+
+          <div class="mb-3">
+            <label class="form-label fw-semibold" for="name">{{ form.name.label }}</label>
+            {{ form.name(class="form-control" + (" is-invalid" if form.name.errors else ""), placeholder="e.g. Science Library Room 204", style="min-height: 44px;") }}
+            {% for error in form.name.errors %}
+              <div class="invalid-feedback">{{ error }}</div>
+            {% endfor %}
+          </div>
+
+          <div class="row g-2 mb-3">
+            <div class="col-12 col-sm-6">
+              <label class="form-label fw-semibold" for="building">{{ form.building.label }}</label>
+              {{ form.building(class="form-control", placeholder="Library", style="min-height: 44px;") }}
+            </div>
+            <div class="col-12 col-sm-6">
+              <label class="form-label fw-semibold" for="zone">{{ form.zone.label }}</label>
+              {{ form.zone(class="form-control", placeholder="North Campus", style="min-height: 44px;") }}
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-semibold" for="venue">{{ form.venue.label }}</label>
+            {{ form.venue(class="form-control", placeholder="e.g. 2nd Floor Quiet Study Area", style="min-height: 44px;") }}
+          </div>
+
+          <div class="row g-2 mb-3">
+            <div class="col-12 col-sm-6">
+              <label class="form-label fw-semibold" for="latitude">{{ form.latitude.label }}</label>
+              {{ form.latitude(class="form-control", placeholder="40.7128", style="min-height: 44px;") }}
+            </div>
+            <div class="col-12 col-sm-6">
+              <label class="form-label fw-semibold" for="longitude">{{ form.longitude.label }}</label>
+              {{ form.longitude(class="form-control", placeholder="-74.0060", style="min-height: 44px;") }}
+            </div>
+          </div>
+
+          <div class="mb-4 form-check">
+            {{ form.is_active(class="form-check-input") }}
+            <label class="form-check-label fw-semibold" for="is_active">{{ form.is_active.label }}</label>
+          </div>
+
+          {{ form.submit(class="btn btn-primary w-100", style="min-height: 44px; display: inline-flex; align-items: center; justify-content: center;") }}
+        </form>
+      </div>
+    </div>
+
+    <!-- Locations Table -->
+    <div class="col-12 col-lg-8">
+      <div class="card shadow-sm border rounded-4 bg-white overflow-hidden">
+        <div class="card-header bg-white py-3 px-3 px-sm-4">
+          <h2 class="h5 fw-bold m-0">Existing Locations ({{ locations | length }})</h2>
+        </div>
+        <div class="table-container">
+          <table class="table table-hover align-middle mb-0 responsive-table">
+            <thead class="table-light small">
+              <tr>
+                <th scope="col">Name</th>
+                <th scope="col">Building</th>
+                <th scope="col">Zone</th>
+                <th scope="col">GPS Coordinates</th>
+                <th scope="col">Status</th>
+                <th scope="col">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for loc in locations %}
+                <tr>
+                  <td data-label="Name" class="fw-bold text-dark">{{ loc.name }}</td>
+                  <td data-label="Building">{{ loc.building }}</td>
+                  <td data-label="Zone"><span class="badge bg-light text-dark border">{{ loc.zone }}</span></td>
+                  <td data-label="GPS Coordinates" class="small font-monospace">{{ loc.latitude | round(4) }}, {{ loc.longitude | round(4) }}</td>
+                  <td data-label="Status">
+                    {% if loc.is_active %}
+                      <span class="badge bg-success-subtle text-success border border-success-subtle">Active</span>
+                    {% else %}
+                      <span class="badge bg-secondary-subtle text-secondary border">Inactive</span>
+                    {% endif %}
+                  </td>
+                  <td data-label="Action">
+                    <a href="{{ url_for('admin.edit_location', loc_id=loc._id) }}" class="btn btn-sm btn-outline-secondary" style="min-height: 38px; display: inline-flex; align-items: center;">
+                      <i class="bi bi-pencil me-1" aria-hidden="true"></i>Edit
+                    </a>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

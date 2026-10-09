@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% block title %}Audit Trail - Admin{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-3">
+  <div class="page-header d-flex flex-wrap justify-content-between align-items-center mb-4 pb-2 border-bottom gap-3">
+    <div>
+      <h1 class="h3 fw-bold mb-1"><i class="bi bi-journal-text text-primary me-2" aria-hidden="true"></i>System Security & Audit Trail</h1>
+      <p class="text-muted small m-0">Append-only immutable record of all custody, workflow, handover, and permission actions.</p>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="card shadow-sm border rounded-3 p-3 mb-4 bg-white">
+    <form method="GET" action="{{ url_for('admin.audit') }}" class="row g-2 align-items-center" role="search" aria-label="Filter audit logs">
+      <div class="col-12 col-md-5">
+        <label for="audit-action" class="visually-hidden">Action Filter</label>
+        <input type="text" id="audit-action" name="action" value="{{ current_action }}" class="form-control" placeholder="Filter by action (e.g. claim_decided)..." style="min-height: 40px;">
+      </div>
+      <div class="col-12 col-md-4">
+        <label for="audit-entity" class="visually-hidden">Entity Type</label>
+        <select id="audit-entity" name="entity" class="form-select" style="min-height: 40px;">
+          <option value="">All Entity Types</option>
+          <option value="lost_item" {% if current_entity == 'lost_item' %}selected{% endif %}>Lost Item</option>
+          <option value="found_item" {% if current_entity == 'found_item' %}selected{% endif %}>Found Item</option>
+          <option value="claim" {% if current_entity == 'claim' %}selected{% endif %}>Claim</option>
+          <option value="handover" {% if current_entity == 'handover' %}selected{% endif %}>Handover</option>
+          <option value="user" {% if current_entity == 'user' %}selected{% endif %}>User</option>
+          <option value="settings" {% if current_entity == 'settings' %}selected{% endif %}>Settings</option>
+        </select>
+      </div>
+      <div class="col-12 col-md-3 d-flex gap-2">
+        <button type="submit" class="btn btn-primary flex-grow-1" style="min-height: 40px; display: inline-flex; align-items: center; justify-content: center;">Filter</button>
+        <a href="{{ url_for('admin.audit') }}" class="btn btn-outline-secondary" style="min-height: 40px; display: inline-flex; align-items: center;" title="Reset" aria-label="Reset audit filters"><i class="bi bi-arrow-clockwise" aria-hidden="true"></i></a>
+      </div>
+    </form>
+  </div>
+
+  <!-- Audit Logs Table -->
+  {% if logs %}
+    <div class="card shadow-sm border rounded-4 bg-white overflow-hidden mb-4">
+      <div class="table-container">
+        <table class="table table-hover align-middle mb-0 responsive-table">
+          <thead class="table-light small">
+            <tr>
+              <th scope="col">Timestamp</th>
+              <th scope="col">Action</th>
+              <th scope="col">Actor</th>
+              <th scope="col">Entity</th>
+              <th scope="col">Entity ID</th>
+              <th scope="col">Structured Details</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for log in logs %}
+              <tr>
+                <td data-label="Timestamp" class="small text-muted">{{ log.timestamp | format_date("%Y-%m-%d %H:%M:%S") }}</td>
+                <td data-label="Action">
+                  <span class="badge bg-secondary text-uppercase">{{ log.action }}</span>
+                </td>
+                <td data-label="Actor">
+                  <div class="fw-semibold text-dark">{{ log.actor.name }}</div>
+                  <small class="text-muted">{{ log.actor.email }}</small>
+                </td>
+                <td data-label="Entity"><code>{{ log.entity_type }}</code></td>
+                <td data-label="Entity ID" class="small font-monospace">{{ log.entity_id or "—" }}</td>
+                <td data-label="Details" class="small font-monospace text-secondary" style="word-break: break-word;">
+                  {{ log.details }}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    {% if total_pages > 1 %}
+      <nav aria-label="Audit pagination" class="d-flex justify-content-center">
+        <ul class="pagination">
+          <li class="page-item {% if page <= 1 %}disabled{% endif %}">
+            <a class="page-link" href="{{ url_for('admin.audit', page=page-1, entity=current_entity, action=current_action) }}">&laquo; Prev</a>
+          </li>
+          {% for p in range(1, total_pages + 1) %}
+            <li class="page-item {% if p == page %}active{% endif %}">
+              <a class="page-link" href="{{ url_for('admin.audit', page=p, entity=current_entity, action=current_action) }}">{{ p }}</a>
+            </li>
+          {% endfor %}
+          <li class="page-item {% if page >= total_pages %}disabled{% endif %}">
+            <a class="page-link" href="{{ url_for('admin.audit', page=page+1, entity=current_entity, action=current_action) }}">Next &raquo;</a>
+          </li>
+        </ul>
+      </nav>
+    {% endif %}
+
+  {% else %}
+    <div class="text-center py-5 bg-white rounded-3 border">
+      <i class="bi bi-journal-text display-3 text-muted" aria-hidden="true"></i>
+      <h2 class="h4 mt-3 fw-bold text-dark">No Audit Logs Found</h2>
+      <p class="text-muted small">No audit log records matched your query.</p>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

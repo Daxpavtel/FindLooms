@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% block title %}System Analytics & Reports{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-3">
+  <!-- Header & CSV Export Actions -->
+  <div class="page-header d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4 pb-2 border-bottom">
+    <div>
+      <h1 class="h3 fw-bold mb-1"><i class="bi bi-bar-chart-fill text-primary me-2" aria-hidden="true"></i>Analytics & Resolution Reports</h1>
+      <p class="text-muted small m-0">Performance metrics, aggregation pipelines, and return success metrics across the organization.</p>
+    </div>
+
+    <!-- CSV Export Links (Pure HTML Links with touch friendly tap target) -->
+    <div class="d-flex flex-wrap gap-2" role="toolbar" aria-label="Export Data Reports">
+      <a href="{{ url_for('reports.export_csv', report_type='lost') }}" class="btn btn-sm btn-outline-danger" style="min-height: 40px; display: inline-flex; align-items: center;">
+        <i class="bi bi-file-earmark-spreadsheet me-1" aria-hidden="true"></i>Lost CSV
+      </a>
+      <a href="{{ url_for('reports.export_csv', report_type='found') }}" class="btn btn-sm btn-outline-success" style="min-height: 40px; display: inline-flex; align-items: center;">
+        <i class="bi bi-file-earmark-spreadsheet me-1" aria-hidden="true"></i>Found CSV
+      </a>
+      <a href="{{ url_for('reports.export_csv', report_type='claims') }}" class="btn btn-sm btn-outline-primary" style="min-height: 40px; display: inline-flex; align-items: center;">
+        <i class="bi bi-file-earmark-spreadsheet me-1" aria-hidden="true"></i>Claims CSV
+      </a>
+    </div>
+  </div>
+
+  <!-- KPI Cards Grid -->
+  <div class="kpi-grid mb-4">
+    <div class="kpi-card border-start border-4 border-danger">
+      <div class="kpi-label">Total Lost Reports</div>
+      <div class="kpi-value text-danger mt-1">{{ total_lost }}</div>
+      <small class="text-muted">Logged community reports</small>
+    </div>
+    <div class="kpi-card border-start border-4 border-success">
+      <div class="kpi-label">Discovered Items</div>
+      <div class="kpi-value text-success mt-1">{{ total_found }}</div>
+      <small class="text-muted">Turned into custody</small>
+    </div>
+    <div class="kpi-card border-start border-4 border-primary">
+      <div class="kpi-label">Return Success Rate</div>
+      <div class="kpi-value text-primary mt-1">{{ return_rate }}%</div>
+      <small class="text-muted">{{ returned_items }} items safely reunited</small>
+    </div>
+    <div class="kpi-card border-start border-4 border-info">
+      <div class="kpi-label">Avg Resolution Time</div>
+      <div class="kpi-value text-info mt-1">{{ avg_resolution_days }} <span class="fs-6 fw-normal text-muted">days</span></div>
+      <small class="text-muted">From report to handover</small>
+    </div>
+  </div>
+
+  <!-- Server-Rendered Charts (100% Zero JS - Inline Static Images) -->
+  <div class="row g-4 mb-4">
+    <div class="col-12 col-lg-7">
+      <div class="card shadow-sm border rounded-4 p-3 p-sm-4 bg-white h-100 text-center">
+        <h2 class="h5 fw-bold mb-3 text-start"><i class="bi bi-pie-chart text-danger me-2" aria-hidden="true"></i>Lost vs. Found Volume by Category</h2>
+        <div class="d-flex justify-content-center align-items-center flex-grow-1 overflow-hidden">
+          <img src="{{ chart_category_b64 }}" alt="Category Comparison Chart showing lost versus found counts by category" class="img-fluid rounded border" style="max-height: 380px; width: 100%; object-fit: contain;" loading="lazy">
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-lg-5">
+      <div class="card shadow-sm border rounded-4 p-3 p-sm-4 bg-white h-100 text-center">
+        <h2 class="h5 fw-bold mb-3 text-start"><i class="bi bi-geo-alt-fill text-primary me-2" aria-hidden="true"></i>Top Incident Locations</h2>
+        <div class="d-flex justify-content-center align-items-center flex-grow-1 overflow-hidden">
+          <img src="{{ chart_loc_b64 }}" alt="Top Incident Locations Chart showing highest incident frequency locations" class="img-fluid rounded border" style="max-height: 380px; width: 100%; object-fit: contain;" loading="lazy">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Category Breakdown Aggregation Table -->
+  <div class="card shadow-sm border rounded-3 bg-white mb-4">
+    <div class="card-header bg-white py-3 px-3 px-sm-4">
+      <h2 class="h5 fw-bold m-0"><i class="bi bi-table me-2" aria-hidden="true"></i>Category Aggregation Pipeline Breakdown</h2>
+    </div>
+    <div class="table-container">
+      <table class="table table-hover align-middle mb-0 responsive-table">
+        <thead class="table-light small">
+          <tr>
+            <th scope="col">Category</th>
+            <th scope="col">Lost Reports</th>
+            <th scope="col">Found Items</th>
+            <th scope="col">Total Traffic</th>
+            <th scope="col">Match Rate</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for cid, row in breakdown_data.items() %}
+            <tr>
+              <td data-label="Category" class="fw-bold text-dark">{{ row.name }}</td>
+              <td data-label="Lost Reports" class="text-danger fw-semibold">{{ row.lost }}</td>
+              <td data-label="Found Items" class="text-success fw-semibold">{{ row.found }}</td>
+              <td data-label="Total Traffic">{{ row.lost + row.found }}</td>
+              <td data-label="Match Rate">
+                {% if row.lost > 0 %}
+                  {% set pct = (row.found / row.lost * 100) | round(1) %}
+                  <div class="progress" style="height: 16px; width: 120px; max-width: 100%;">
+                    <div class="progress-bar bg-success" role="progressbar" style="width: {{ [pct, 100]|min }}%;" aria-valuenow="{{ pct }}" aria-valuemin="0" aria-valuemax="100">
+                      {{ pct }}%
+                    </div>
+                  </div>
+                {% else %}
+                  <span class="text-muted small">N/A</span>
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

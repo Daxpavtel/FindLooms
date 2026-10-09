@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}Calendar View - {{ month_name }} {{ year }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-2">
+  <!-- Calendar Header & Month Navigation -->
+  <div class="page-header d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3 pb-2 border-bottom">
+    <div>
+      <h1 class="h3 fw-bold mb-1"><i class="bi bi-calendar3 text-primary me-2" aria-hidden="true"></i>{{ month_name }} {{ year }}</h1>
+      <p class="text-muted small m-0">Server-rendered calendar grid. Click any day to view scheduled handovers, lost reports, and discovered items.</p>
+    </div>
+
+    <!-- Month Navigation Links (Pure HTML GET Links) -->
+    <div class="btn-group mt-2 mt-md-0" role="group" aria-label="Month Navigation">
+      <a href="{{ url_for('views.calendar_view', year=prev_year, month=prev_month) }}" class="btn btn-outline-secondary" style="min-height: 40px; display: inline-flex; align-items: center;">
+        <i class="bi bi-chevron-left me-1" aria-hidden="true"></i>Previous
+      </a>
+      <a href="{{ url_for('views.calendar_view') }}" class="btn btn-outline-secondary" style="min-height: 40px; display: inline-flex; align-items: center;">Today</a>
+      <a href="{{ url_for('views.calendar_view', year=next_year, month=next_month) }}" class="btn btn-outline-secondary" style="min-height: 40px; display: inline-flex; align-items: center;">
+        Next<i class="bi bi-chevron-right ms-1" aria-hidden="true"></i>
+      </a>
+    </div>
+  </div>
+
+  <!-- Legend -->
+  <div class="d-flex flex-wrap gap-2 mb-3 small" aria-label="Event Legend">
+    <span><span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2 py-1">● Lost Reports</span></span>
+    <span><span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1">● Found Items</span></span>
+    <span><span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1">● Scheduled Handovers</span></span>
+  </div>
+
+  <!-- Calendar Grid (Pure CSS Grid on Desktop, Agenda on Mobile) -->
+  <div class="calendar-grid shadow-sm">
+    <!-- Day Header Row -->
+    <div class="calendar-header-day">Mon</div>
+    <div class="calendar-header-day">Tue</div>
+    <div class="calendar-header-day">Wed</div>
+    <div class="calendar-header-day">Thu</div>
+    <div class="calendar-header-day">Fri</div>
+    <div class="calendar-header-day">Sat</div>
+    <div class="calendar-header-day">Sun</div>
+
+    <!-- Days Matrix -->
+    {% for week in month_days %}
+      {% for day_num, weekday in week %}
+        {% if day_num == 0 %}
+          <div class="calendar-day-cell inactive" aria-hidden="true"></div>
+        {% else %}
+          {% set day_str = "%04d-%02d-%02d"|format(year, month, day_num) %}
+          {% set is_today = (today.year == year and today.month == month and today.day == day_num) %}
+          {% set ev = events_by_day.get(day_num, {}) %}
+
+          <a href="{{ url_for('views.day_view', date_str=day_str) }}" class="calendar-day-cell {% if is_today %}today{% endif %}" aria-label="View schedule for {{ day_str }}">
+            <div class="calendar-day-num d-flex justify-content-between align-items-center">
+              <span>{{ day_num }}</span>
+              {% if is_today %}<span class="badge bg-primary ms-1" style="font-size: 0.65rem;">Today</span>{% endif %}
+            </div>
+
+            <!-- Event Pills -->
+            <div class="calendar-events-container">
+              {% if ev.lost %}
+                <span class="calendar-pill bg-danger-subtle text-danger border border-danger-subtle">
+                  {{ ev.lost }} Lost
+                </span>
+              {% endif %}
+              {% if ev.found %}
+                <span class="calendar-pill bg-success-subtle text-success border border-success-subtle">
+                  {{ ev.found }} Found
+                </span>
+              {% endif %}
+              {% if ev.handovers %}
+                <span class="calendar-pill bg-primary-subtle text-primary border border-primary-subtle">
+                  {{ ev.handovers }} Return
+                </span>
+              {% endif %}
+            </div>
+          </a>
+        {% endif %}
+      {% endfor %}
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

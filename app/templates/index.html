@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+{% block title %}Welcome to LostFound{% endblock %}
+
+{% block content %}
+<div class="container py-3 py-md-4">
+  <!-- Hero Section -->
+  <section class="card shadow-sm border rounded-4 p-3 p-sm-4 p-md-5 bg-white mb-5" aria-labelledby="hero-heading">
+    <div class="row align-items-center g-4">
+      <div class="col-lg-7">
+        <span class="badge bg-primary-subtle text-primary border border-primary-subtle mb-3 px-3 py-2 rounded-pill fw-semibold text-wrap" style="max-width: 100%; text-align: left;">
+          <i class="bi bi-stars me-1" aria-hidden="true"></i> AI & Rule-Based Smart Lost & Found
+        </span>
+        <h1 id="hero-heading" class="fw-bold text-dark mb-3">
+          Lost something? <br><span class="text-primary">We'll help you find it.</span>
+        </h1>
+        <p class="lead text-secondary mb-4" style="max-width: 600px;">
+          A centralized, secure lost & found system for campuses, venues, and organizations. Report what's missing, register discovered items, and let our intelligent match engine connect the dots.
+        </p>
+        <div class="d-flex flex-column flex-sm-row flex-wrap gap-2 gap-sm-3">
+          <a href="{{ url_for('lost.create') }}" class="btn btn-danger btn-lg px-4 shadow-sm">
+            <i class="bi bi-search me-2" aria-hidden="true"></i>Report Lost Item
+          </a>
+          <a href="{{ url_for('found.create') }}" class="btn btn-success btn-lg px-4 shadow-sm">
+            <i class="bi bi-box-seam me-2" aria-hidden="true"></i>Register Found Item
+          </a>
+          <a href="{{ url_for('found.list_items') }}" class="btn btn-outline-secondary btn-lg px-4">
+            <i class="bi bi-grid me-2" aria-hidden="true"></i>Browse Public Catalog
+          </a>
+        </div>
+      </div>
+
+      <div class="col-lg-5 text-center mt-3 mt-lg-0">
+        <div class="p-3 p-md-4 bg-light rounded-4 border">
+          <div class="display-3 text-primary mb-2" aria-hidden="true">
+            <i class="bi bi-patch-check-fill"></i>
+          </div>
+          <h2 class="h4 fw-bold mb-3 text-dark">System Transparency</h2>
+          <div class="row g-2 text-start">
+            <div class="col-6">
+              <div class="p-3 bg-white rounded-3 border text-center">
+                <div class="fs-3 fw-bold text-danger">{{ stats.total_lost }}</div>
+                <small class="text-muted fw-semibold">Lost Reports</small>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="p-3 bg-white rounded-3 border text-center">
+                <div class="fs-3 fw-bold text-success">{{ stats.total_found }}</div>
+                <small class="text-muted fw-semibold">Found Items</small>
+              </div>
+            </div>
+            <div class="col-12">
+              <div class="p-3 bg-white rounded-3 border text-center">
+                <div class="fs-3 fw-bold text-primary">{{ stats.total_returned }}</div>
+                <small class="text-muted text-uppercase fw-semibold">Items Successfully Returned</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- The 3-Step Flow Section -->
+  <section class="mb-5" aria-labelledby="how-it-works-heading">
+    <div class="text-center mb-4">
+      <h2 id="how-it-works-heading" class="fw-bold mb-2">How It Works</h2>
+      <p class="text-muted lead">Seamless end-to-end custody and verification in 3 simple steps</p>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-12 col-md-4">
+        <div class="card h-100 border shadow-sm p-4 text-center rounded-4 bg-white">
+          <div class="mx-auto mb-3 d-flex align-items-center justify-content-center bg-danger-subtle text-danger rounded-circle" style="width: 64px; height: 64px; font-size: 1.6rem;" aria-hidden="true">
+            <i class="bi bi-pencil-square"></i>
+          </div>
+          <h3 class="h5 fw-bold text-dark">1. Report with Secret Clue</h3>
+          <p class="text-muted small mb-0">
+            Submit details about what was lost or found. Add a confidential verification clue that only the genuine owner knows. Secret clues stay 100% hidden from the public.
+          </p>
+        </div>
+      </div>
+
+      <div class="col-12 col-md-4">
+        <div class="card h-100 border shadow-sm p-4 text-center rounded-4 bg-white">
+          <div class="mx-auto mb-3 d-flex align-items-center justify-content-center bg-primary-subtle text-primary rounded-circle" style="width: 64px; height: 64px; font-size: 1.6rem;" aria-hidden="true">
+            <i class="bi bi-cpu-fill"></i>
+          </div>
+          <h3 class="h5 fw-bold text-dark">2. Smart Match Engine</h3>
+          <p class="text-muted small mb-0">
+            Our algorithm compares categories, GPS & building zones, date proximities, color, brand, and description TF-IDF similarity to score potential matches out of 100%.
+          </p>
+        </div>
+      </div>
+
+      <div class="col-12 col-md-4">
+        <div class="card h-100 border shadow-sm p-4 text-center rounded-4 bg-white">
+          <div class="mx-auto mb-3 d-flex align-items-center justify-content-center bg-success-subtle text-success rounded-circle" style="width: 64px; height: 64px; font-size: 1.6rem;" aria-hidden="true">
+            <i class="bi bi-shield-lock-fill"></i>
+          </div>
+          <h3 class="h5 fw-bold text-dark">3. Verify & Handover</h3>
+          <p class="text-muted small mb-0">
+            Claimants submit ownership proof. Reviewers inspect claimant answers against hidden details side by side, schedule returns on the calendar, and log signed handovers.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+{% endblock %}

@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}Verify Claim {{ claim.reference_no }}{% endblock %}
+
+{% block content %}
+<div class="container py-3" style="max-width: 900px;">
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb mb-2">
+      <li class="breadcrumb-item"><a href="{{ url_for('claims.queue') }}">Claims Queue</a></li>
+      <li class="breadcrumb-item"><a href="{{ url_for('claims.detail', claim_id=claim._id) }}">{{ claim.reference_no }}</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Verification</li>
+    </ol>
+  </nav>
+
+  <div class="card shadow-sm border rounded-4 p-3 p-sm-4 p-md-5 bg-white mb-4">
+    <div class="mb-4 border-bottom pb-3">
+      <h1 class="h3 fw-bold text-dark"><i class="bi bi-shield-check text-primary me-2" aria-hidden="true"></i>Verify Ownership Claim</h1>
+      <div class="d-flex flex-wrap gap-2 align-items-center mt-2">
+        <span class="badge bg-secondary">{{ claim.reference_no }}</span>
+        <span class="badge bg-light text-dark border">Claimant: {{ claim.claimant.name }} ({{ claim.claimant.email }})</span>
+      </div>
+    </div>
+
+    <!-- Side-by-Side Comparison on Desktop, Stacked on Mobile -->
+    <h2 class="h5 fw-bold mb-3">Compare Evidence</h2>
+    <div class="row g-3 mb-4">
+      <div class="col-12 col-md-6">
+        <div class="claimant-answer-box h-100 p-3 rounded-3 border">
+          <div class="fw-bold text-success mb-2">
+            <i class="bi bi-person-badge me-1" aria-hidden="true"></i>Claimant Proof Statement:
+          </div>
+          <p class="m-0 text-dark font-monospace small" style="white-space: pre-wrap; word-break: break-word;">{{ claim.proof_answer }}</p>
+        </div>
+      </div>
+      <div class="col-12 col-md-6">
+        <div class="secret-detail-box h-100 p-3 rounded-3 border">
+          <div class="fw-bold text-danger mb-2">
+            <i class="bi bi-lock-fill me-1" aria-hidden="true"></i>Item Confidential Specifics:
+          </div>
+          <p class="m-0 text-dark font-monospace small" style="white-space: pre-wrap; word-break: break-word;">{{ claim.found_item.private_details or "No confidential details recorded." }}</p>
+          <div class="mt-2 text-muted small">
+            Stored At: <b>{{ claim.found_item.custody_location }}</b>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <form method="POST" action="{{ url_for('claims.review', claim_id=claim._id) }}">
+      {{ form.hidden_tag() }}
+
+      <div class="mb-3">
+        <label class="form-label fw-bold" for="action">{{ form.action.label }}</label>
+        {{ form.action(class="form-select", style="min-height: 44px;") }}
+      </div>
+
+      <div class="mb-4">
+        <label class="form-label fw-bold" for="reviewer_notes">{{ form.reviewer_notes.label }}</label>
+        {{ form.reviewer_notes(class="form-control w-100" + (" is-invalid" if form.reviewer_notes.errors else ""), rows="3", placeholder="Detail why this claim was approved or rejected...") }}
+        {% for error in form.reviewer_notes.errors %}
+          <div class="invalid-feedback">{{ error }}</div>
+        {% endfor %}
+      </div>
+
+      <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 pt-2 border-top">
+        <a href="{{ url_for('claims.detail', claim_id=claim._id) }}" class="btn btn-outline-secondary" style="min-height: 44px; display: inline-flex; align-items: center;">Cancel</a>
+        {{ form.submit(class="btn btn-primary px-4 shadow-sm", style="min-height: 44px; display: inline-flex; align-items: center; justify-content: center;") }}
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

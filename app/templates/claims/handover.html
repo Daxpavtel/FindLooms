@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Record Handover - {{ claim.reference_no }}{% endblock %}
+
+{% block content %}
+<div class="container py-3" style="max-width: 760px;">
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb mb-2">
+      <li class="breadcrumb-item"><a href="{{ url_for('claims.queue') }}">Claims</a></li>
+      <li class="breadcrumb-item"><a href="{{ url_for('claims.detail', claim_id=claim._id) }}">{{ claim.reference_no }}</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Handover</li>
+    </ol>
+  </nav>
+
+  <div class="card shadow-sm border rounded-4 p-3 p-sm-4 p-md-5 bg-white mb-4">
+    <div class="mb-4 border-bottom pb-3">
+      <h1 class="h3 fw-bold text-dark"><i class="bi bi-box-arrow-right text-success me-2" aria-hidden="true"></i>Record Handover & Return Item</h1>
+      <p class="text-muted small m-0">Final step: Log physical custody release and mark item as Returned.</p>
+    </div>
+
+    <div class="p-3 bg-light rounded-3 border mb-4">
+      <div class="fw-bold">{{ claim.found_item.name }} ({{ claim.found_item.reference_no }})</div>
+      <div class="small text-muted">Claimant: {{ claim.claimant.name }} • Approved Status</div>
+    </div>
+
+    <form method="POST" action="{{ url_for('claims.handover', claim_id=claim._id) }}">
+      {{ form.hidden_tag() }}
+
+      <div class="mb-3">
+        <label class="form-label fw-bold" for="receiver_name">{{ form.receiver_name.label }}</label>
+        {{ form.receiver_name(class="form-control" + (" is-invalid" if form.receiver_name.errors else ""), placeholder="Full name of person collecting", style="min-height: 44px;") }}
+        {% for error in form.receiver_name.errors %}
+          <div class="invalid-feedback">{{ error }}</div>
+        {% endfor %}
+      </div>
+
+      <div class="row g-3 mb-3">
+        <div class="col-12 col-md-6">
+          <label class="form-label fw-bold" for="handover_date">{{ form.handover_date.label }}</label>
+          {{ form.handover_date(class="form-control", style="min-height: 44px; max-width: 100%;") }}
+        </div>
+        <div class="col-12 col-md-6">
+          <label class="form-label fw-bold" for="scheduled_time">{{ form.scheduled_time.label }}</label>
+          {{ form.scheduled_time(class="form-control", placeholder="e.g. Completed today at 4:15 PM", style="min-height: 44px; max-width: 100%;") }}
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <label class="form-label fw-bold" for="acknowledgement_note">{{ form.acknowledgement_note.label }}</label>
+        {{ form.acknowledgement_note(class="form-control w-100", rows="3", placeholder="ID verified (e.g. Student Card #29381), item condition acknowledged...") }}
+      </div>
+
+      <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 pt-2 border-top">
+        <a href="{{ url_for('claims.detail', claim_id=claim._id) }}" class="btn btn-outline-secondary" style="min-height: 44px; display: inline-flex; align-items: center;">Cancel</a>
+        {{ form.submit(class="btn btn-success px-4 shadow-sm", style="min-height: 44px; display: inline-flex; align-items: center; justify-content: center;") }}
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

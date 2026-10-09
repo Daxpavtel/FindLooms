@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}Claims Review Queue{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-3">
+  <div class="page-header d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4 pb-2 border-bottom">
+    <div>
+      <h1 class="h3 fw-bold mb-1"><i class="bi bi-check2-square text-primary me-2" aria-hidden="true"></i>Staff Claims Review Queue</h1>
+      <p class="text-muted small m-0">Review pending ownership proofs submitted by claimants across campus.</p>
+    </div>
+  </div>
+
+  <!-- Status Filters -->
+  <div class="d-flex flex-wrap gap-2 mb-4" role="navigation" aria-label="Filter claims by status">
+    <a href="{{ url_for('claims.queue', status='New') }}" class="btn btn-sm {% if current_status == 'New' %}btn-primary{% else %}btn-outline-secondary{% endif %}" style="min-height: 40px; display: inline-flex; align-items: center;">
+      New Submissions
+    </a>
+    <a href="{{ url_for('claims.queue', status='Under Review') }}" class="btn btn-sm {% if current_status == 'Under Review' %}btn-primary{% else %}btn-outline-secondary{% endif %}" style="min-height: 40px; display: inline-flex; align-items: center;">
+      Under Review
+    </a>
+    <a href="{{ url_for('claims.queue', status='Approved') }}" class="btn btn-sm {% if current_status == 'Approved' %}btn-primary{% else %}btn-outline-secondary{% endif %}" style="min-height: 40px; display: inline-flex; align-items: center;">
+      Approved (Ready for Pickup)
+    </a>
+    <a href="{{ url_for('claims.queue', status='Returned') }}" class="btn btn-sm {% if current_status == 'Returned' %}btn-primary{% else %}btn-outline-secondary{% endif %}" style="min-height: 40px; display: inline-flex; align-items: center;">
+      Returned (Completed)
+    </a>
+    <a href="{{ url_for('claims.queue', status='Rejected') }}" class="btn btn-sm {% if current_status == 'Rejected' %}btn-primary{% else %}btn-outline-secondary{% endif %}" style="min-height: 40px; display: inline-flex; align-items: center;">
+      Rejected
+    </a>
+    <a href="{{ url_for('claims.queue', status='All') }}" class="btn btn-sm {% if current_status == 'All' %}btn-primary{% else %}btn-outline-secondary{% endif %}" style="min-height: 40px; display: inline-flex; align-items: center;">
+      All Claims
+    </a>
+  </div>
+
+  {% if claims %}
+    <div class="card shadow-sm border rounded-3 bg-white">
+      <div class="table-container">
+        <table class="table table-hover align-middle mb-0 responsive-table">
+          <thead class="table-light small">
+            <tr>
+              <th scope="col">Claim Ref</th>
+              <th scope="col">Found Item</th>
+              <th scope="col">Claimant</th>
+              <th scope="col">Claim Type</th>
+              <th scope="col">Submitted</th>
+              <th scope="col">Status</th>
+              <th scope="col">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for c in claims %}
+              <tr>
+                <td data-label="Claim Ref" class="fw-semibold text-secondary small">{{ c.reference_no }}</td>
+                <td data-label="Found Item">
+                  <div class="fw-bold text-dark">{{ c.found_item.name }}</div>
+                  <small class="text-muted">{{ c.found_item.reference_no }} • {{ c.found_item.location.name }}</small>
+                </td>
+                <td data-label="Claimant">
+                  <div>{{ c.claimant.name }}</div>
+                  <small class="text-muted">{{ c.claimant.email }}</small>
+                </td>
+                <td data-label="Claim Type"><span class="badge bg-light text-dark border">{{ c.claim_type }}</span></td>
+                <td data-label="Submitted" class="small text-muted">{{ c.created_at | format_date("%b %d, %Y %H:%M") }}</td>
+                <td data-label="Status">
+                  <span class="badge badge-{{ c.status.lower().replace(' ', '-') }}">{{ c.status }}</span>
+                </td>
+                <td data-label="Actions">
+                  <a href="{{ url_for('claims.detail', claim_id=c._id) }}" class="btn btn-sm btn-outline-primary" style="min-height: 38px; display: inline-flex; align-items: center;">
+                    Inspect & Verify
+                  </a>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  {% else %}
+    <div class="text-center py-5 bg-white rounded-3 border">
+      <i class="bi bi-inbox display-3 text-muted" aria-hidden="true"></i>
+      <h2 class="h4 mt-3 fw-bold text-dark">No Claims in this View</h2>
+      <p class="text-muted small">No items currently match the '{{ current_status }}' filter.</p>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

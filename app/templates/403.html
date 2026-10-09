@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Access Denied{% endblock %}
+{% block content %}
+<div class="container py-5" style="max-width: 600px;">
+  <div class="card shadow-sm border rounded-4 p-4 p-md-5 bg-white text-center">
+    <div class="display-1 text-danger mb-2" aria-hidden="true"><i class="bi bi-shield-lock-fill"></i></div>
+    <div class="badge bg-danger-subtle text-danger border border-danger-subtle mx-auto mb-3 px-3 py-2 fs-6">HTTP 403</div>
+    <h1 class="h2 fw-bold text-dark mb-2">Access Denied</h1>
+    <p class="text-muted lead mb-4">You do not have the required permissions or role to access this resource.</p>
+    <div>
+      <a href="{{ url_for('index') }}" class="btn btn-primary px-4 shadow-sm" style="min-height: 44px; display: inline-flex; align-items: center; justify-content: center;">
+        <i class="bi bi-house me-2" aria-hidden="true"></i>Return to Home
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}
