@@ -271,3 +271,5 @@ pytest -v
 3. **WhatsApp / SMS Gateway Integration:** Dispatch real-time SMS alerts when high-confidence matches (score ≥ 80%) are detected.
 4. **Facial Blur on Uploaded Photos:** Automatically detect and blur bystander faces on photos taken in public campus areas.
 5. **REST API & Webhooks:** Expose authenticated API endpoints for integration with campus security management systems.
+#   F i n d L o o m s  
+ 
