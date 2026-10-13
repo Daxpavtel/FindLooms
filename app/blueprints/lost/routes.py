@@ -67,7 +67,10 @@ def create():
 
     if form.validate_on_submit():
         image_path = None
-        if form.image.data:
+        direct_path = request.form.get("direct_image_path", "").strip()
+        if direct_path and direct_path.startswith("uploads/"):
+            image_path = direct_path
+        elif form.image.data:
             image_path, err = validate_and_save_image(form.image.data)
             if err:
                 flash(err, "danger")
@@ -231,7 +234,10 @@ def edit(item_id: str):
             "description": form.description.data.strip(),
             "private_verification_detail": form.private_verification_detail.data.strip()
         }
-        if form.image.data:
+        direct_path = request.form.get("direct_image_path", "").strip()
+        if direct_path and direct_path.startswith("uploads/"):
+            update_data["image_path"] = direct_path
+        elif form.image.data:
             image_path, err = validate_and_save_image(form.image.data)
             if err:
                 flash(err, "danger")

@@ -128,28 +128,32 @@
       </fieldset>
 
       <!-- Section 3: Verification (Confidential Clue) -->
-      <fieldset class="form-fieldset border-danger-subtle bg-danger-subtle">
-        <legend class="form-legend text-danger">
+      <fieldset class="form-fieldset border-danger-subtle bg-danger-subtle p-3 p-md-4 mb-4">
+        <legend class="form-legend text-danger mb-3">
           <i class="bi bi-shield-lock-fill me-2" aria-hidden="true"></i>Confidential Verification Clue
         </legend>
-        <label class="form-label fw-bold text-danger" for="private_verification_detail">
-          {{ form.private_verification_detail.label }} <span class="text-danger">*</span>
-        </label>
-        {{ form.private_verification_detail(class="form-control" + (" is-invalid" if form.private_verification_detail.errors else ""), rows="2", placeholder="e.g. Small scratch near charger port; NASA sticker on bottom left; wallpaper is a mountain landscape.") }}
-        <div class="form-text text-danger-emphasis small mt-2">
-          <strong>Security Guarantee:</strong> This clue is 100% hidden from the public. Only staff review this to verify claimant answers before handover.
+        <div class="verification-clue-field">
+          <label class="form-label fw-bold text-danger mb-2" for="private_verification_detail">
+            {{ form.private_verification_detail.label }} <span class="text-danger">*</span>
+          </label>
+          {{ form.private_verification_detail(class="form-control w-100" + (" is-invalid" if form.private_verification_detail.errors else ""), rows="3", placeholder="e.g. Small scratch near charger port; NASA sticker on bottom left; wallpaper is a mountain landscape.") }}
+          <div class="form-text text-danger-emphasis small mt-2">
+            <strong>Security Guarantee:</strong> This clue is 100% hidden from the public. Only staff review this to verify claimant answers before handover.
+          </div>
+          {% for error in form.private_verification_detail.errors %}
+            <div class="invalid-feedback">{{ error }}</div>
+          {% endfor %}
         </div>
-        {% for error in form.private_verification_detail.errors %}
-          <div class="invalid-feedback">{{ error }}</div>
-        {% endfor %}
       </fieldset>
 
       <!-- Section 4: Image & Attachment -->
-      <fieldset class="form-fieldset">
-        <legend class="form-legend"><i class="bi bi-image text-secondary me-2" aria-hidden="true"></i>Item Photo (Optional)</legend>
-        <label class="form-label fw-semibold" for="image">{{ form.image.label }}</label>
-        {{ form.image(class="form-control") }}
-        <div class="form-text text-muted small mt-1">Maximum file size: 5MB. Supported formats: PNG, JPG, JPEG, WEBP.</div>
+      <fieldset class="form-fieldset p-3 p-md-4 mb-4">
+        <legend class="form-legend mb-3"><i class="bi bi-image text-secondary me-2" aria-hidden="true"></i>Item Photo (Optional)</legend>
+        <div class="w-100">
+          <label class="form-label fw-semibold mb-2" for="image">{{ form.image.label }}</label>
+          {{ form.image(class="form-control w-100") }}
+          <div class="form-text text-muted small mt-1">Maximum file size: 5MB. Supported formats: PNG, JPG, JPEG, WEBP.</div>
+        </div>
       </fieldset>
 
       <!-- Sticky Submit Bar on Mobile -->
@@ -166,4 +170,8 @@
     </form>
   </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/image_optimizer.js') }}"></script>
 {% endblock %}

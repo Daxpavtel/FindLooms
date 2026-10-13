@@ -56,6 +56,58 @@ def create_app(config_class=Config):
     app.register_blueprint(reports_bp)
     app.register_blueprint(admin_bp)
 
+    # Image serving route (supports disk cache, /tmp on Vercel, and persistent MongoDB storage)
+    @app.route("/static/uploads/<filename>")
+    @app.route("/uploads/<filename>")
+    def serve_uploaded_image(filename):
+        from pathlib import Path
+        # 1. Local disk check
+        upload_folder = Path(app.config.get("UPLOAD_FOLDER", "app/static/uploads"))
+        if (upload_folder / filename).is_file():
+            from flask import send_from_directory
+            return send_from_directory(str(upload_folder), filename)
+
+        # 2. Ephemeral serverless check (/tmp/uploads)
+        tmp_folder = Path("/tmp/uploads")
+        if (tmp_folder / filename).is_file():
+            from flask import send_from_directory
+            return send_from_directory(str(tmp_folder), filename)
+
+        # 3. Persistent MongoDB lookup (ensures images survive across Vercel serverless invocations)
+        try:
+            from app.db import get_db
+            db = get_db()
+            doc = db.item_images.find_one({"filename": filename})
+            if doc and "data" in doc:
+                from flask import Response
+                return Response(
+                    doc["data"],
+                    mimetype=doc.get("content_type", "image/jpeg"),
+                    headers={"Cache-Control": "public, max-age=31536000"}
+                )
+        except Exception as e:
+            app.logger.warning(f"Error retrieving image from database: {e}")
+
+        return ("Image not found", 404)
+
+    # Direct image upload endpoint for client-side pre-uploads
+    @app.route("/api/upload-image", methods=["POST"])
+    def api_upload_image():
+        from flask import request, jsonify
+        if "image" not in request.files:
+            return jsonify({"success": False, "error": "No image provided"}), 400
+
+        file = request.files["image"]
+        if not file or not file.filename:
+            return jsonify({"success": False, "error": "No file selected"}), 400
+
+        from app.services.upload import validate_and_save_image
+        saved_path, err = validate_and_save_image(file)
+        if err:
+            return jsonify({"success": False, "error": err}), 400
+
+        return jsonify({"success": True, "image_path": saved_path}), 200
+
     # Landing page
     @app.route("/")
     def index():
