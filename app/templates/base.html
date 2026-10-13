@@ -18,16 +18,24 @@
   <!-- Header / Navigation (Pure HTML & CSS - Zero Client JS) -->
   <header class="lf-header" role="banner">
     <div class="lf-nav-container">
-      <a href="{{ url_for('index') }}" class="lf-brand" aria-label="LostFound Home">
-        <i class="bi bi-compass-fill me-2" aria-hidden="true"></i>
-        <span>Lost<span class="text-primary">Found</span></span>
-      </a>
+      <div class="lf-nav-bar">
+        <a href="{{ url_for('index') }}" class="lf-brand" aria-label="LostFound Home">
+          <i class="bi bi-compass-fill me-2" aria-hidden="true"></i>
+          <span>Lost<span class="text-primary">Found</span></span>
+        </a>
 
-      <!-- CSS-Only Hamburger Toggle for Mobile/Tablet -->
+        <!-- Mobile Hamburger Toggle (Accessible Button / Label) -->
+        <label for="nav-toggle" id="nav-toggle-btn" class="lf-nav-toggle-btn" tabindex="0" role="button" aria-controls="nav-menu" aria-expanded="false" aria-label="Toggle navigation menu">
+          <span class="lf-nav-toggle-icon" id="nav-toggle-icon" aria-hidden="true">
+            <span></span>
+            <span></span>
+            <span></span>
+          </span>
+        </label>
+      </div>
+
+      <!-- Progressive Enhancement Checkbox for Zero-JS Fallback -->
       <input type="checkbox" id="nav-toggle" class="lf-nav-toggle-input" aria-label="Toggle navigation menu">
-      <label for="nav-toggle" class="lf-nav-toggle-label" tabindex="0" role="button" aria-controls="nav-menu" aria-label="Toggle navigation menu">
-        <i class="bi bi-list" aria-hidden="true"></i>
-      </label>
 
       <!-- Navigation Content -->
       <div id="nav-menu" class="lf-nav-content">
@@ -149,6 +157,7 @@
       </div>
     </div>
   </footer>
+  <script src="{{ url_for('static', filename='js/navbar.js') }}"></script>
   {% block scripts %}{% endblock %}
 </body>
 </html>

@@ -418,7 +418,7 @@ img, svg, iframe {
 }
 
 /* ==========================================================================
-   5. NAVIGATION & HEADER (Pure HTML/CSS - Zero JavaScript)
+   5. NAVIGATION & HEADER (Responsive Desktop & Mobile Drawer)
    ========================================================================== */
 
 .lf-header {
@@ -429,28 +429,25 @@ img, svg, iframe {
   z-index: 1000;
   box-shadow: var(--lf-shadow-sm);
   padding: env(safe-area-inset-top, 0) env(safe-area-inset-right, 0) 0 env(safe-area-inset-left, 0);
+  width: 100%;
 }
 
 .lf-nav-container {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: column;
   width: 100%;
   max-width: 1440px;
   margin: 0 auto;
   padding: 0.5rem 1rem;
+  box-sizing: border-box;
 }
 
-@media (min-width: 768px) {
-  .lf-nav-container {
-    padding: 0.65rem 1.5rem;
-  }
-}
-
-@media (min-width: 1200px) {
-  .lf-nav-container {
-    padding: 0.75rem 2rem;
-  }
+.lf-nav-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 44px;
 }
 
 .lf-brand {
@@ -462,13 +459,19 @@ img, svg, iframe {
   text-decoration: none;
   letter-spacing: -0.03em;
   min-height: var(--lf-min-tap-target);
+  flex-shrink: 0;
 }
 
 .lf-brand:hover {
   color: var(--lf-primary-hover);
 }
 
-/* Pure CSS Hamburger Checkbox Hack */
+.lf-brand i {
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+/* Progressive Enhancement Checkbox Hack */
 .lf-nav-toggle-input {
   position: absolute;
   opacity: 0;
@@ -477,42 +480,114 @@ img, svg, iframe {
   pointer-events: none;
 }
 
-.lf-nav-toggle-label {
+/* Mobile Hamburger Toggle Button */
+.lf-nav-toggle-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: var(--lf-min-tap-target);
-  height: var(--lf-min-tap-target);
+  width: 42px;
+  height: 42px;
+  min-width: 42px;
+  min-height: 42px;
   border: 1px solid var(--lf-border);
-  border-radius: var(--lf-radius-sm);
+  border-radius: var(--lf-radius-md);
   background-color: var(--lf-surface);
   color: var(--lf-text);
   cursor: pointer;
-  font-size: 1.25rem;
+  font-size: 1.35rem;
   user-select: none;
+  padding: 0;
+  margin: 0 0 0 auto;
+  line-height: 1;
+  transition: background-color var(--lf-transition-fast), border-color var(--lf-transition-fast), color var(--lf-transition-fast);
 }
 
-.lf-nav-toggle-label:hover {
+.lf-nav-toggle-btn:hover {
   background-color: var(--lf-surface-hover);
+  border-color: var(--lf-border-strong);
+  color: var(--lf-primary);
 }
 
-.lf-nav-toggle-label:focus-visible {
+.lf-nav-toggle-btn:focus-visible {
   outline: 2px solid var(--lf-primary);
+  outline-offset: 2px;
 }
 
-/* Mobile Nav Drawer (Collapsible) */
+.lf-nav-toggle-btn.active {
+  background-color: var(--lf-surface-subtle);
+  border-color: var(--lf-primary-border);
+  color: var(--lf-primary);
+}
+
+/* 3-Bar Animated Hamburger Icon */
+.lf-nav-toggle-icon {
+  display: inline-block;
+  width: 18px;
+  height: 14px;
+  position: relative;
+}
+
+.lf-nav-toggle-icon span {
+  display: block;
+  position: absolute;
+  height: 2px;
+  width: 100%;
+  background-color: currentColor;
+  border-radius: 2px;
+  opacity: 1;
+  left: 0;
+  transform: rotate(0deg);
+  transition: transform var(--lf-transition-fast), top var(--lf-transition-fast), opacity var(--lf-transition-fast);
+}
+
+.lf-nav-toggle-icon span:nth-child(1) { top: 0px; }
+.lf-nav-toggle-icon span:nth-child(2) { top: 6px; }
+.lf-nav-toggle-icon span:nth-child(3) { top: 12px; }
+
+/* When open / active: animated transform into an 'X' */
+.lf-nav-toggle-btn.active .lf-nav-toggle-icon span:nth-child(1) {
+  top: 6px;
+  transform: rotate(135deg);
+}
+
+.lf-nav-toggle-btn.active .lf-nav-toggle-icon span:nth-child(2) {
+  opacity: 0;
+  left: -12px;
+}
+
+.lf-nav-toggle-btn.active .lf-nav-toggle-icon span:nth-child(3) {
+  top: 6px;
+  transform: rotate(-135deg);
+}
+
+/* Mobile Nav Drawer / Dropdown */
 .lf-nav-content {
   display: none; /* Hidden by default on mobile */
   flex-direction: column;
   width: 100%;
-  padding: 0.75rem 0 1rem;
+  padding: 0.75rem 0 0.5rem;
   border-top: 1px solid var(--lf-border);
-  gap: 0.75rem;
+  margin-top: 0.5rem;
+  gap: 0.65rem;
+  box-sizing: border-box;
 }
 
-/* When checkbox is checked, expand the menu on mobile */
-.lf-nav-toggle-input:checked ~ .lf-nav-content {
-  display: flex;
+/* Show menu when checkbox is checked OR is-open class is set */
+.lf-nav-toggle-input:checked ~ .lf-nav-content,
+.lf-nav-content.is-open {
+  display: flex !important;
+  animation: lfNavSlideDown 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes lfNavSlideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .lf-nav-links {
@@ -527,9 +602,9 @@ img, svg, iframe {
 .lf-nav-auth {
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
+  gap: 0.45rem;
   margin: 0;
-  padding: 0.5rem 0 0;
+  padding: 0.65rem 0 0;
   border-top: 1px solid var(--lf-border-subtle);
   width: 100%;
 }
@@ -538,25 +613,37 @@ img, svg, iframe {
   display: inline-flex;
   align-items: center;
   justify-content: flex-start;
-  padding: 0.6rem 0.85rem;
+  padding: 0.65rem 0.85rem;
   min-height: 44px;
   width: 100%;
   font-size: 0.95rem;
-  font-weight: 600;
+  font-weight: 500;
   border-radius: var(--lf-radius-md);
   text-decoration: none;
-  color: var(--lf-text-secondary);
+  color: var(--lf-text);
   border: 1px solid transparent;
   background: transparent;
   cursor: pointer;
   white-space: nowrap;
   font-family: inherit;
+  box-sizing: border-box;
   transition: background-color var(--lf-transition-fast), color var(--lf-transition-fast), border-color var(--lf-transition-fast);
+}
+
+.lf-nav-btn i {
+  font-size: 1.15rem;
+  width: 1.6rem;
+  text-align: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-right: 0.5rem;
 }
 
 .lf-nav-btn:hover {
   background-color: var(--lf-surface-subtle);
-  color: var(--lf-text);
+  color: var(--lf-primary);
   border-color: var(--lf-border-subtle);
 }
 
@@ -564,10 +651,39 @@ img, svg, iframe {
   background-color: var(--lf-primary-light);
   color: var(--lf-primary);
   border-color: var(--lf-primary-border);
+  font-weight: 600;
+}
+
+.lf-nav-btn-login {
+  border-color: var(--lf-border);
+  background-color: var(--lf-surface-subtle);
+  justify-content: center;
+  font-weight: 600;
+}
+
+.lf-nav-btn-login:hover {
+  background-color: var(--lf-surface-hover);
+  border-color: var(--lf-border-strong);
+}
+
+.lf-nav-btn-primary {
+  background-color: var(--lf-primary);
+  color: #ffffff !important;
+  border-color: var(--lf-primary);
+  font-weight: 600;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(29, 78, 216, 0.25);
+}
+
+.lf-nav-btn-primary:hover {
+  background-color: var(--lf-primary-hover);
+  border-color: var(--lf-primary-hover);
+  color: #ffffff !important;
 }
 
 .lf-nav-btn-logout {
   color: var(--lf-danger);
+  justify-content: flex-start;
 }
 
 .lf-nav-btn-logout:hover {
@@ -576,21 +692,26 @@ img, svg, iframe {
   border-color: var(--lf-danger-border);
 }
 
-.lf-nav-btn-primary {
-  background-color: var(--lf-primary);
-  color: #ffffff !important;
-  border-color: var(--lf-primary);
-}
+/* ==========================================================================
+   DESKTOP NAVBAR (768px and above)
+   ========================================================================== */
+@media (min-width: 768px) {
+  .lf-nav-container {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.65rem 1.5rem;
+    flex-wrap: nowrap;
+  }
 
-.lf-nav-btn-primary:hover {
-  background-color: var(--lf-primary-hover);
-  color: #ffffff !important;
-}
+  .lf-nav-bar {
+    width: auto;
+    flex-shrink: 0;
+  }
 
-/* Desktop Navbar */
-@media (min-width: 992px) {
-  .lf-nav-toggle-label {
-    display: none; /* Hide hamburger on desktop */
+  .lf-nav-toggle-btn,
+  .lf-nav-toggle-input {
+    display: none !important; /* Strictly hidden on desktop */
   }
 
   .lf-nav-content {
@@ -598,39 +719,79 @@ img, svg, iframe {
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
-    flex-wrap: wrap;
     flex: 1;
     border-top: none;
+    margin-top: 0;
+    margin-left: 0.75rem;
     padding: 0;
     gap: 0.5rem;
+    animation: none;
+    flex-wrap: nowrap;
   }
 
   .lf-nav-links {
     flex-direction: row;
     align-items: center;
-    flex-wrap: wrap;
-    gap: 0.25rem;
+    flex-wrap: nowrap;
+    gap: 0.15rem;
     width: auto;
   }
 
   .lf-nav-auth {
     flex-direction: row;
     align-items: center;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     gap: 0.25rem;
     width: auto;
     border-top: none;
+    margin: 0 0 0 auto;
     padding: 0;
-    margin-left: auto;
   }
 
   .lf-nav-btn {
     width: auto;
     justify-content: center;
-    padding: 0.35rem 0.6rem;
+    padding: 0.35rem 0.5rem;
     min-height: 38px;
     font-size: 0.825rem;
     border-radius: var(--lf-radius-sm);
+  }
+
+  .lf-nav-btn i {
+    font-size: 1rem;
+    width: auto;
+    margin-right: 0.35rem;
+  }
+
+  .lf-nav-btn-login {
+    border-color: transparent;
+    background-color: transparent;
+    font-weight: 500;
+  }
+
+  .lf-nav-btn-login:hover {
+    background-color: var(--lf-surface-subtle);
+    border-color: var(--lf-border-subtle);
+  }
+
+  .lf-nav-btn-logout {
+    justify-content: center;
+  }
+}
+
+@media (min-width: 1200px) {
+  .lf-nav-container {
+    padding: 0.75rem 2rem;
+  }
+
+  .lf-nav-content {
+    margin-left: 1.5rem;
+    gap: 0.75rem;
+  }
+
+  .lf-nav-btn {
+    padding: 0.4rem 0.75rem;
+    font-size: 0.9rem;
   }
 }
 

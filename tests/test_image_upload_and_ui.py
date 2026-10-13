@@ -157,3 +157,18 @@ def test_lost_item_registration_with_direct_image_path(client, db):
     lost_item = db.lost_items.find_one({"name": "Black Backpack"})
     assert lost_item is not None
     assert lost_item["image_path"] == "uploads/preloaded_backpack.jpg"
+
+
+def test_mobile_responsive_navbar_rendered(client):
+    """Test that base navbar renders the responsive navbar bar, toggle button, and script."""
+    res = client.get("/")
+    assert res.status_code == 200
+    html = res.data.decode("utf-8")
+
+    assert "lf-nav-bar" in html
+    assert "lf-nav-toggle-btn" in html
+    assert "lf-nav-toggle-icon" in html
+    assert "id=\"nav-toggle\"" in html
+    assert "id=\"nav-menu\"" in html
+    assert "lf-nav-content" in html
+    assert "navbar.js" in html
