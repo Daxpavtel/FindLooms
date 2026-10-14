@@ -160,15 +160,24 @@ def test_lost_item_registration_with_direct_image_path(client, db):
 
 
 def test_mobile_responsive_navbar_rendered(client):
-    """Test that base navbar renders the responsive navbar bar, toggle button, and script."""
-    res = client.get("/")
+    """Test that base layout renders the responsive sidebar navigation, mobile menu toggle, theme toggle, and script on application pages."""
+    res = client.get("/lost")
     assert res.status_code == 200
     html = res.data.decode("utf-8")
 
-    assert "lf-nav-bar" in html
-    assert "lf-nav-toggle-btn" in html
-    assert "lf-nav-toggle-icon" in html
-    assert "id=\"nav-toggle\"" in html
-    assert "id=\"nav-menu\"" in html
-    assert "lf-nav-content" in html
+    assert "lf-sidebar" in html
+    assert "mobile-menu-btn" in html
+    assert "theme-toggle-btn" in html
     assert "navbar.js" in html
+
+
+def test_login_page_does_not_render_navbar(client):
+    """Test that the login page does not display the sidebar or mobile menu navbar."""
+    res = client.get("/auth/login")
+    assert res.status_code == 200
+    html = res.data.decode("utf-8")
+
+    assert "lf-sidebar" not in html
+    assert "mobile-menu-btn" not in html
+    assert "theme-toggle-btn" in html
+    assert "Sign In" in html

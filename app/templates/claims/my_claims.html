@@ -1,12 +1,25 @@
 {% extends "base.html" %}
-{% block title %}My Claims{% endblock %}
+{% block title %}My Claims — LostFound{% endblock %}
 
 {% block content %}
-<div class="container py-3" style="max-width: 960px;">
-  <div class="page-header d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4 pb-2 border-bottom">
-    <div>
-      <h1 class="h3 fw-bold mb-1"><i class="bi bi-file-earmark-check text-primary me-2" aria-hidden="true"></i>My Ownership Claims</h1>
-      <p class="text-muted small m-0">Track verification status, review decisions, and scheduled returns for your claims.</p>
+<div class="container py-3 py-md-4" style="max-width: 960px;">
+  <!-- Header Banner -->
+  <div class="card border rounded-4 p-4 lf-catalog-header shadow-sm mb-4">
+    <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-3">
+      <div>
+        <div class="d-flex align-items-center gap-2 mb-1">
+          <span class="badge bg-info-subtle text-info border border-info-subtle px-2 py-1 small">
+            <i class="bi bi-patch-check-fill me-1"></i>Ownership Ledger
+          </span>
+          <span class="badge bg-secondary-subtle text-secondary small">Personal Tracking</span>
+        </div>
+        <h1 class="h3 fw-bold lf-table-title m-0">My Submitted Claims</h1>
+      </div>
+      <div>
+        <a href="{{ url_for('found.list_items') }}" class="btn btn-outline-primary rounded-pill px-4" style="min-height: 40px; display: inline-flex; align-items: center;">
+          <i class="bi bi-search me-1"></i>Search Found Items
+        </a>
+      </div>
     </div>
   </div>
 
@@ -14,28 +27,28 @@
     <div class="row g-3">
       {% for c in claims %}
         <div class="col-12">
-          <div class="card shadow-sm border rounded-4 bg-white p-3 p-sm-4">
-            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
-              <div>
-                <span class="badge bg-light text-secondary border me-2">{{ c.reference_no }}</span>
-                <span class="badge badge-{{ c.status.lower().replace(' ', '-') }} fs-6">{{ c.status }}</span>
-                <span class="text-muted small ms-2">Submitted {{ c.created_at | format_date("%b %d, %Y %H:%M") }}</span>
+          <div class="card lf-catalog-item-card p-4">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3 pb-2 border-bottom">
+              <div class="d-flex align-items-center gap-2">
+                <span class="lf-table-ref">{{ c.reference_no }}</span>
+                <span class="badge badge-{{ c.status.lower().replace(' ', '-') }} px-2 py-1">{{ c.status }}</span>
+                <span class="text-muted small font-monospace">Submitted {{ c.created_at | format_date("%b %d, %Y") }}</span>
               </div>
               <div>
-                <a href="{{ url_for('claims.detail', claim_id=c._id) }}" class="btn btn-sm btn-outline-primary" style="min-height: 40px; display: inline-flex; align-items: center;">
+                <a href="{{ url_for('claims.detail', claim_id=c._id) }}" class="btn-table-view">
                   View Claim Details &rarr;
                 </a>
               </div>
             </div>
 
-            <div class="row align-items-center mt-2 g-3">
+            <div class="row align-items-center g-3">
               <div class="col-12 col-md-7">
-                <h2 class="h5 fw-bold text-dark mb-1">{{ c.found_item.name }}</h2>
+                <h2 class="h5 fw-bold lf-table-title mb-1">{{ c.found_item.name }}</h2>
                 <p class="text-muted small mb-2" style="word-break: break-word;">
-                  <b>Your Submitted Proof:</b> {{ c.proof_answer }}
+                  <strong class="text-secondary">Your Proof Statement:</strong> {{ c.proof_answer }}
                 </p>
                 <div class="small text-secondary">
-                  <span><i class="bi bi-geo-alt text-success me-1" aria-hidden="true"></i>Custody: {{ c.found_item.location.name }}</span>
+                  <span><i class="bi bi-geo-alt text-success me-1" aria-hidden="true"></i>Custody Desk: {{ c.found_item.location.name if c.found_item.location and c.found_item.location.name else 'Campus Office' }}</span>
                 </div>
               </div>
 
@@ -45,24 +58,24 @@
                   <div class="p-3 bg-success-subtle border border-success-subtle rounded-3">
                     <div class="fw-bold text-success"><i class="bi bi-check-circle-fill me-1" aria-hidden="true"></i>Approved for Pickup</div>
                     {% if c.handover and c.handover.scheduled_datetime %}
-                      <div class="small text-dark mt-1">
+                      <div class="small lf-table-title mt-1">
                         <b>Scheduled:</b> {{ c.handover.scheduled_datetime | format_date("%b %d, %Y %H:%M") }}
                       </div>
                     {% else %}
-                      <div class="small text-muted mt-1">Please visit the custody desk during regular hours with your ID card to collect.</div>
+                      <div class="small text-muted mt-1">Please visit the custody desk during regular hours with your campus ID card to collect.</div>
                     {% endif %}
                   </div>
                 {% elif c.status == 'Returned' %}
-                  <div class="p-3 bg-light border rounded-3 text-success">
+                  <div class="p-3 border rounded-3 text-success small fw-medium" style="background-color: var(--lf-surface-subtle);">
                     <i class="bi bi-patch-check-fill me-1" aria-hidden="true"></i>Handover Completed & Item Returned.
                   </div>
                 {% elif c.status == 'Rejected' %}
                   <div class="p-3 bg-danger-subtle border border-danger-subtle rounded-3 text-danger small">
-                    <i class="bi bi-x-circle-fill me-1" aria-hidden="true"></i>Claim rejected by reviewer. You may contact the helpdesk for in-person review.
+                    <i class="bi bi-x-circle-fill me-1" aria-hidden="true"></i>Claim rejected by reviewer. You may contact the custody desk for in-person review.
                   </div>
                 {% else %}
-                  <div class="p-3 bg-light border rounded-3 text-muted small">
-                    <i class="bi bi-hourglass-split me-1" aria-hidden="true"></i>Pending review by campus custody staff.
+                  <div class="p-3 border rounded-3 text-muted small" style="background-color: var(--lf-surface-subtle);">
+                    <i class="bi bi-hourglass-split me-1" aria-hidden="true"></i>Pending verification by campus custody staff.
                   </div>
                 {% endif %}
               </div>
@@ -72,11 +85,13 @@
       {% endfor %}
     </div>
   {% else %}
-    <div class="text-center py-5 bg-white rounded-3 border">
-      <i class="bi bi-file-earmark-check display-3 text-muted" aria-hidden="true"></i>
-      <h2 class="h4 mt-3 fw-bold text-dark">You Have Not Filed Any Claims</h2>
-      <p class="text-muted small">When you discover an item in the found catalog that belongs to you, submit a claim to prove ownership.</p>
-      <a href="{{ url_for('found.list_items') }}" class="btn btn-primary btn-sm" style="min-height: 44px; display: inline-flex; align-items: center;">Browse Found Items</a>
+    <div class="card p-5 text-center lf-catalog-header rounded-4 border shadow-sm">
+      <i class="bi bi-file-earmark-check display-3 text-muted mb-3" aria-hidden="true"></i>
+      <h2 class="h4 fw-bold lf-table-title">You Have Not Filed Any Claims</h2>
+      <p class="text-muted small mb-4" style="max-width: 440px; margin: 0 auto;">When you discover an item in the found catalog that belongs to you, submit an ownership claim with identifying proof.</p>
+      <div>
+        <a href="{{ url_for('found.list_items') }}" class="btn btn-primary rounded-pill px-4" style="min-height: 44px; display: inline-flex; align-items: center;">Browse Found Items</a>
+      </div>
     </div>
   {% endif %}
 </div>

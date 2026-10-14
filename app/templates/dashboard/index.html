@@ -1,191 +1,335 @@
 {% extends "base.html" %}
-{% block title %}Dashboard{% endblock %}
+{% block title %}Dashboard — LostFound{% endblock %}
 
 {% block content %}
-<div class="container-fluid py-2">
-  <!-- Greeting & Quick Actions Header -->
-  <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4 pb-3 border-bottom">
-    <div>
-      <h1 class="h2 fw-bold mb-1 text-dark">Welcome, {{ current_user.name }}!</h1>
-      <p class="text-muted small m-0">
-        Role: <span class="badge bg-secondary text-uppercase">{{ current_user.role }}</span>
-        {% if current_user.department %} • {{ current_user.department }}{% endif %}
-      </p>
-    </div>
-    <div class="d-flex flex-wrap gap-2 w-100 w-md-auto">
-      <a href="{{ url_for('lost.create') }}" class="btn btn-danger flex-grow-1 flex-md-grow-0 shadow-sm">
-        <i class="bi bi-plus-circle me-1" aria-hidden="true"></i>Report Lost
-      </a>
-      <a href="{{ url_for('found.create') }}" class="btn btn-success flex-grow-1 flex-md-grow-0 shadow-sm">
-        <i class="bi bi-plus-circle me-1" aria-hidden="true"></i>Register Found
-      </a>
-      {% if current_user.is_staff %}
-        <a href="{{ url_for('kanban.board') }}" class="btn btn-outline-primary flex-grow-1 flex-md-grow-0">
-          <i class="bi bi-kanban me-1" aria-hidden="true"></i>Kanban Board
-        </a>
-      {% endif %}
-    </div>
-  </div>
-
-  <!-- KPI Cards Grid (Responsive auto-fit) -->
-  <div class="kpi-grid">
-    <div class="kpi-card border-start border-4 border-danger">
-      <div class="kpi-label">Active Lost Reports</div>
-      <div class="kpi-value text-danger">{{ kpis.lost_count }}</div>
-      <div class="small text-muted mt-2"><i class="bi bi-person me-1" aria-hidden="true"></i>My Reports: <b>{{ kpis.my_lost }}</b></div>
-    </div>
-    <div class="kpi-card border-start border-4 border-success">
-      <div class="kpi-label">Active Found Items</div>
-      <div class="kpi-value text-success">{{ kpis.found_count }}</div>
-      <div class="small text-muted mt-2"><i class="bi bi-hand-thumbs-up me-1" aria-hidden="true"></i>My Submissions: <b>{{ kpis.my_found }}</b></div>
-    </div>
-    <div class="kpi-card border-start border-4 border-warning">
-      <div class="kpi-label">Claims In Review</div>
-      <div class="kpi-value text-warning">{{ kpis.pending_claims }}</div>
-      <div class="small text-muted mt-2"><i class="bi bi-file-earmark-check me-1" aria-hidden="true"></i>My Filed Claims: <b>{{ kpis.my_claims }}</b></div>
-    </div>
-    <div class="kpi-card border-start border-4 border-primary">
-      <div class="kpi-label">Items Returned</div>
-      <div class="kpi-value text-primary">{{ kpis.returned_count }}</div>
-      <div class="small text-muted mt-2"><i class="bi bi-check-circle-fill text-success me-1" aria-hidden="true"></i>Reunited</div>
-    </div>
-  </div>
-
-  <!-- Recent Tables Section -->
-  <div class="row g-4 mb-4">
-    <!-- Recent Lost Items -->
-    <div class="col-12 col-lg-6">
-      <div class="card shadow-sm border rounded-3 h-100 bg-white">
-        <div class="card-header bg-white py-3 px-3 px-md-4 d-flex justify-content-between align-items-center">
-          <h2 class="h5 fw-bold m-0 text-dark"><i class="bi bi-search text-danger me-2" aria-hidden="true"></i>Recent Lost Reports</h2>
-          <a href="{{ url_for('lost.list_items') }}" class="btn btn-sm btn-link text-decoration-none p-0">View All &rarr;</a>
+<div class="container-fluid py-3" style="max-width: 1440px;">
+  
+  <!-- Executive Welcome Hero Banner -->
+  <div class="card lf-hero-card border-0 rounded-4 p-4 p-md-5 mb-4 position-relative overflow-hidden">
+    <div class="row align-items-center g-4 position-relative" style="z-index: 2;">
+      <div class="col-12 col-lg-7">
+        <div class="d-flex align-items-center gap-2 mb-2">
+          <span class="badge lf-role-badge lf-role-{{ current_user.role }} text-uppercase px-3 py-1">
+            <i class="bi bi-shield-fill-check me-1" aria-hidden="true"></i>{{ current_user.role }} Account
+          </span>
+          {% if current_user.department %}
+            <span class="badge bg-secondary-subtle text-secondary px-3 py-1">
+              <i class="bi bi-building me-1" aria-hidden="true"></i>{{ current_user.department }}
+            </span>
+          {% endif %}
         </div>
-        <div class="table-responsive table-responsive-stack">
+        <h1 class="display-6 fw-bold mb-2">Welcome back, {{ current_user.name }}</h1>
+        <p class="text-muted m-0 lead fs-6">
+          Monitor active loss reports, manage custody inventory, and track real-time match candidates.
+        </p>
+      </div>
+
+      <div class="col-12 col-lg-5">
+        <div class="d-flex flex-wrap gap-2 justify-content-start justify-content-lg-end">
+          <a href="{{ url_for('lost.create') }}" class="btn btn-danger px-3 px-sm-4 shadow-sm lf-action-btn" style="min-height: 44px;">
+            <i class="bi bi-search me-1" aria-hidden="true"></i>Report Lost
+          </a>
+          <a href="{{ url_for('found.create') }}" class="btn btn-success px-3 px-sm-4 shadow-sm lf-action-btn" style="min-height: 44px;">
+            <i class="bi bi-plus-circle me-1" aria-hidden="true"></i>Register Found
+          </a>
+          {% if current_user.is_staff %}
+            <a href="{{ url_for('kanban.board') }}" class="btn btn-primary px-3 px-sm-4 shadow-sm lf-action-btn" style="min-height: 44px;">
+              <i class="bi bi-kanban me-1" aria-hidden="true"></i>Kanban
+            </a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- KPI Metric Cards Grid -->
+  <div class="row g-3 mb-4">
+    <!-- Card 1: Lost Reports -->
+    <div class="col-12 col-sm-6 col-xl-3">
+      <div class="card lf-kpi-card h-100 position-relative">
+        <div class="d-flex justify-content-between align-items-start mb-3">
+          <div class="lf-kpi-icon bg-danger-subtle text-danger">
+            <i class="bi bi-search" aria-hidden="true"></i>
+          </div>
+          <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2 py-1 small fw-semibold">Active</span>
+        </div>
+        <div class="lf-kpi-number fw-bold display-6 mb-1">{{ kpis.lost_count }}</div>
+        <div class="lf-kpi-label text-muted small fw-semibold">Lost Items Reported</div>
+        <div class="mt-3 pt-2 border-top small text-muted d-flex justify-content-between">
+          <span>My reports:</span>
+          <span class="fw-bold lf-table-title">{{ kpis.my_lost }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 2: Found Items -->
+    <div class="col-12 col-sm-6 col-xl-3">
+      <div class="card lf-kpi-card h-100 position-relative">
+        <div class="d-flex justify-content-between align-items-start mb-3">
+          <div class="lf-kpi-icon bg-success-subtle text-success">
+            <i class="bi bi-box-seam-fill" aria-hidden="true"></i>
+          </div>
+          <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1 small fw-semibold">In Custody</span>
+        </div>
+        <div class="lf-kpi-number fw-bold display-6 mb-1">{{ kpis.found_count }}</div>
+        <div class="lf-kpi-label text-muted small fw-semibold">Found Items Registered</div>
+        <div class="mt-3 pt-2 border-top small text-muted d-flex justify-content-between">
+          <span>My submissions:</span>
+          <span class="fw-bold lf-table-title">{{ kpis.my_found }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 3: Claims In Review -->
+    <div class="col-12 col-sm-6 col-xl-3">
+      <div class="card lf-kpi-card h-100 position-relative">
+        <div class="d-flex justify-content-between align-items-start mb-3">
+          <div class="lf-kpi-icon bg-warning-subtle text-warning">
+            <i class="bi bi-patch-question-fill" aria-hidden="true"></i>
+          </div>
+          <span class="badge bg-warning-subtle text-warning border border-warning-subtle px-2 py-1 small fw-semibold">Verification</span>
+        </div>
+        <div class="lf-kpi-number fw-bold display-6 mb-1">{{ kpis.pending_claims }}</div>
+        <div class="lf-kpi-label text-muted small fw-semibold">Pending Ownership Claims</div>
+        <div class="mt-3 pt-2 border-top small text-muted d-flex justify-content-between">
+          <span>My filed claims:</span>
+          <span class="fw-bold lf-table-title">{{ kpis.my_claims }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 4: Returned / Reunited -->
+    <div class="col-12 col-sm-6 col-xl-3">
+      <div class="card lf-kpi-card h-100 position-relative">
+        <div class="d-flex justify-content-between align-items-start mb-3">
+          <div class="lf-kpi-icon bg-primary-subtle text-primary">
+            <i class="bi bi-arrow-repeat" aria-hidden="true"></i>
+          </div>
+          <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1 small fw-semibold">Success</span>
+        </div>
+        <div class="lf-kpi-number fw-bold display-6 mb-1">{{ kpis.returned_count }}</div>
+        <div class="lf-kpi-label text-muted small fw-semibold">Successfully Reunited</div>
+        <div class="mt-3 pt-2 border-top small text-muted d-flex justify-content-between">
+          <span>Handover status:</span>
+          <span class="fw-bold text-success"><i class="bi bi-check-circle-fill me-1" aria-hidden="true"></i>Completed</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Tables Grid -->
+  <div class="row g-4 mb-4 align-items-stretch">
+    <!-- Table 1: Recent Lost Reports -->
+    <div class="col-12 col-lg-6 d-flex flex-column">
+      <div class="card lf-table-card w-100">
+        <div class="card-header py-3 px-4 d-flex justify-content-between align-items-center">
+          <div class="d-flex align-items-center gap-2">
+            <div class="p-2 bg-danger-subtle text-danger rounded-3 lh-1">
+              <i class="bi bi-search" aria-hidden="true"></i>
+            </div>
+            <div>
+              <h2 class="h6 fw-bold m-0 lf-table-title">Recent Lost Reports</h2>
+              <small class="text-muted">Missing items reported by campus members</small>
+            </div>
+          </div>
+          <a href="{{ url_for('lost.list_items') }}" class="btn btn-sm btn-table-browse">
+            Browse All &rarr;
+          </a>
+        </div>
+
+        <div class="table-responsive">
           <table class="table table-hover align-middle mb-0">
-            <thead class="table-light small">
+            <thead class="small text-uppercase">
               <tr>
-                <th scope="col">Ref No</th>
-                <th scope="col">Item</th>
+                <th scope="col" class="ps-4">Reference</th>
+                <th scope="col">Item Description</th>
                 <th scope="col">Category</th>
                 <th scope="col">Stage</th>
-                <th scope="col">Action</th>
+                <th scope="col" class="text-end pe-4">Action</th>
               </tr>
             </thead>
             <tbody>
               {% for it in recent_lost %}
                 <tr>
-                  <td data-label="Ref No" class="fw-semibold text-secondary small">{{ it.reference_no }}</td>
-                  <td data-label="Item">
-                    <div class="fw-semibold text-dark">{{ it.name }}</div>
-                    <small class="text-muted">{{ it.color }} • {{ it.location.name }}</small>
+                  <td class="ps-4">
+                    <span class="lf-table-ref">{{ it.reference_no }}</span>
                   </td>
-                  <td data-label="Category">
-                    <span class="badge bg-light text-dark border">
-                      <i class="bi {{ it.category.icon }} me-1" aria-hidden="true"></i>{{ it.category.name }}
+                  <td>
+                    <div class="lf-table-title">{{ it.name }}</div>
+                    <span class="lf-table-meta"><i class="bi bi-geo-alt" aria-hidden="true"></i>{{ it.location.name if it.location else 'Campus' }}</span>
+                  </td>
+                  <td>
+                    <span class="badge-category">
+                      <i class="bi {{ it.category.icon if it.category else 'bi-box' }}" aria-hidden="true"></i>{{ it.category.name if it.category else 'General' }}
                     </span>
                   </td>
-                  <td data-label="Stage">
-                    <span class="badge badge-{{ it.stage.lower().replace(' ', '-') }}">{{ it.stage }}</span>
+                  <td>
+                    <span class="badge badge-{{ it.stage.lower().replace(' ', '-') }} px-2 py-1">{{ it.stage }}</span>
                   </td>
-                  <td data-label="Action">
-                    <a href="{{ url_for('lost.detail', item_id=it._id) }}" class="btn btn-sm btn-outline-secondary">View</a>
+                  <td class="text-end pe-4">
+                    <a href="{{ url_for('lost.detail', item_id=it._id) }}" class="btn-table-view">
+                      View
+                    </a>
                   </td>
                 </tr>
               {% else %}
                 <tr>
-                  <td colspan="5" class="text-center text-muted py-4">No recent lost reports.</td>
+                  <td colspan="5" class="p-0 border-0">
+                    <div class="lf-table-empty">
+                      <i class="bi bi-inbox" aria-hidden="true"></i>
+                      <div class="lf-table-empty-title">No Lost Items Reported Yet</div>
+                      <p class="lf-table-empty-desc">All clear! No pending loss reports in the database.</p>
+                      <a href="{{ url_for('lost.create') }}" class="btn btn-sm btn-outline-danger rounded-pill px-3">
+                        <i class="bi bi-plus-lg me-1" aria-hidden="true"></i>Report a Lost Item
+                      </a>
+                    </div>
+                  </td>
                 </tr>
               {% endfor %}
             </tbody>
           </table>
+          {% if recent_lost and recent_lost|length < 3 %}
+            <div class="lf-table-end-state">
+              <i class="bi bi-check2-circle text-success" aria-hidden="true"></i>
+              <span>All recent loss reports displayed</span>
+            </div>
+          {% endif %}
         </div>
       </div>
     </div>
 
-    <!-- Recent Found Items -->
-    <div class="col-12 col-lg-6">
-      <div class="card shadow-sm border rounded-3 h-100 bg-white">
-        <div class="card-header bg-white py-3 px-3 px-md-4 d-flex justify-content-between align-items-center">
-          <h2 class="h5 fw-bold m-0 text-dark"><i class="bi bi-box-seam text-success me-2" aria-hidden="true"></i>Recent Found Items</h2>
-          <a href="{{ url_for('found.list_items') }}" class="btn btn-sm btn-link text-decoration-none p-0">View All &rarr;</a>
+    <!-- Table 2: Recent Found Items -->
+    <div class="col-12 col-lg-6 d-flex flex-column">
+      <div class="card lf-table-card w-100">
+        <div class="card-header py-3 px-4 d-flex justify-content-between align-items-center">
+          <div class="d-flex align-items-center gap-2">
+            <div class="p-2 bg-success-subtle text-success rounded-3 lh-1">
+              <i class="bi bi-box-seam" aria-hidden="true"></i>
+            </div>
+            <div>
+              <h2 class="h6 fw-bold m-0 lf-table-title">Recent Found Items</h2>
+              <small class="text-muted">Turned-in property currently in campus custody</small>
+            </div>
+          </div>
+          <a href="{{ url_for('found.list_items') }}" class="btn btn-sm btn-table-browse">
+            Browse All &rarr;
+          </a>
         </div>
-        <div class="table-responsive table-responsive-stack">
+
+        <div class="table-responsive">
           <table class="table table-hover align-middle mb-0">
-            <thead class="table-light small">
+            <thead class="small text-uppercase">
               <tr>
-                <th scope="col">Ref No</th>
-                <th scope="col">Item</th>
+                <th scope="col" class="ps-4">Reference</th>
+                <th scope="col">Item Description</th>
                 <th scope="col">Category</th>
                 <th scope="col">Status</th>
-                <th scope="col">Action</th>
+                <th scope="col" class="text-end pe-4">Action</th>
               </tr>
             </thead>
             <tbody>
               {% for it in recent_found %}
                 <tr>
-                  <td data-label="Ref No" class="fw-semibold text-secondary small">{{ it.reference_no }}</td>
-                  <td data-label="Item">
-                    <div class="fw-semibold text-dark">{{ it.name }}</div>
-                    <small class="text-muted">{{ it.color }} • {{ it.location.name }}</small>
+                  <td class="ps-4">
+                    <span class="lf-table-ref">{{ it.reference_no }}</span>
                   </td>
-                  <td data-label="Category">
-                    <span class="badge bg-light text-dark border">
-                      <i class="bi {{ it.category.icon }} me-1" aria-hidden="true"></i>{{ it.category.name }}
+                  <td>
+                    <div class="lf-table-title">{{ it.name }}</div>
+                    <span class="lf-table-meta"><i class="bi bi-geo-alt" aria-hidden="true"></i>{{ it.location.name if it.location else 'Campus' }}</span>
+                  </td>
+                  <td>
+                    <span class="badge-category">
+                      <i class="bi {{ it.category.icon if it.category else 'bi-box' }}" aria-hidden="true"></i>{{ it.category.name if it.category else 'General' }}
                     </span>
                   </td>
-                  <td data-label="Status">
-                    <span class="badge badge-{{ it.status.lower().replace(' ', '-') }}">{{ it.status }}</span>
+                  <td>
+                    <span class="badge badge-{{ it.status.lower().replace(' ', '-') }} px-2 py-1">{{ it.status }}</span>
                   </td>
-                  <td data-label="Action">
-                    <a href="{{ url_for('found.detail', item_id=it._id) }}" class="btn btn-sm btn-outline-secondary">View</a>
+                  <td class="text-end pe-4">
+                    <a href="{{ url_for('found.detail', item_id=it._id) }}" class="btn-table-view">
+                      View
+                    </a>
                   </td>
                 </tr>
               {% else %}
                 <tr>
-                  <td colspan="5" class="text-center text-muted py-4">No recent found items.</td>
+                  <td colspan="5" class="p-0 border-0">
+                    <div class="lf-table-empty">
+                      <i class="bi bi-inbox" aria-hidden="true"></i>
+                      <div class="lf-table-empty-title">No Found Items In Custody</div>
+                      <p class="lf-table-empty-desc">No discovered property currently registered.</p>
+                      <a href="{{ url_for('found.create') }}" class="btn btn-sm btn-outline-success rounded-pill px-3">
+                        <i class="bi bi-plus-lg me-1" aria-hidden="true"></i>Register Found Item
+                      </a>
+                    </div>
+                  </td>
                 </tr>
               {% endfor %}
             </tbody>
           </table>
+          {% if recent_found and recent_found|length < 3 %}
+            <div class="lf-table-end-state">
+              <i class="bi bi-check2-circle text-success" aria-hidden="true"></i>
+              <span>All recent custody items displayed</span>
+            </div>
+          {% endif %}
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Staff/Admin Audit Log Preview -->
-  {% if current_user.is_staff and recent_audit %}
-    <div class="card shadow-sm border rounded-3 bg-white mb-4">
-      <div class="card-header bg-white py-3 px-3 px-md-4 d-flex justify-content-between align-items-center">
-        <h2 class="h5 fw-bold m-0 text-dark"><i class="bi bi-journal-text text-primary me-2" aria-hidden="true"></i>Recent System Activity Audit</h2>
-        <a href="{{ url_for('admin.audit') if current_user.is_admin else '#' }}" class="btn btn-sm btn-link text-decoration-none p-0">
-          Full Audit Log &rarr;
+  <!-- Staff / Admin Audit Activity Timeline -->
+  {% if current_user.is_staff %}
+    <div class="card lf-table-card mb-4">
+      <div class="card-header py-3 px-4 d-flex justify-content-between align-items-center">
+        <div class="d-flex align-items-center gap-2">
+          <div class="p-2 bg-primary-subtle text-primary rounded-3 lh-1">
+            <i class="bi bi-journal-code" aria-hidden="true"></i>
+          </div>
+          <div>
+            <h2 class="h6 fw-bold m-0 lf-table-title">Recent Custody Audit Activity</h2>
+            <small class="text-muted">Immutable chain-of-custody and verification log</small>
+          </div>
+        </div>
+        <a href="{{ url_for('admin.audit') }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3" style="min-height: 32px; display: inline-flex; align-items: center;">
+          Full Audit Trail &rarr;
         </a>
       </div>
-      <div class="table-responsive table-responsive-stack">
-        <table class="table table-sm align-middle mb-0">
-          <thead class="table-light small">
-            <tr>
-              <th scope="col">Timestamp</th>
-              <th scope="col">Action</th>
-              <th scope="col">Actor</th>
-              <th scope="col">Target Entity</th>
-              <th scope="col">Details</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for log in recent_audit %}
+
+      <div class="table-responsive">
+        {% if recent_audit %}
+          <table class="table table-hover align-middle mb-0">
+            <thead class="small text-uppercase">
               <tr>
-                <td data-label="Timestamp" class="small text-muted">{{ log.timestamp | format_date("%Y-%m-%d %H:%M") }}</td>
-                <td data-label="Action"><span class="badge bg-secondary text-uppercase">{{ log.action }}</span></td>
-                <td data-label="Actor">{{ log.actor.name }} <small class="text-muted">({{ log.actor.role }})</small></td>
-                <td data-label="Target"><code>{{ log.entity_type }}</code></td>
-                <td data-label="Details" class="small text-muted text-break">{{ log.details }}</td>
+                <th scope="col" class="ps-4">Timestamp</th>
+                <th scope="col">Action</th>
+                <th scope="col">Actor</th>
+                <th scope="col">Entity</th>
+                <th scope="col" class="pe-4">Details</th>
               </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {% for log in recent_audit %}
+                <tr>
+                  <td class="ps-4 small text-muted font-monospace">{{ log.timestamp | format_date("%Y-%m-%d %H:%M") }}</td>
+                  <td><span class="badge bg-secondary text-uppercase">{{ log.action }}</span></td>
+                  <td><span class="fw-semibold lf-table-title">{{ log.actor.name }}</span> <small class="text-muted">({{ log.actor.role }})</small></td>
+                  <td><code class="small">{{ log.entity_type }}</code></td>
+                  <td class="pe-4 small text-secondary text-break">{{ log.details }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        {% else %}
+          <div class="lf-table-empty p-4 text-center">
+            <i class="bi bi-journal-check display-6 text-muted mb-2"></i>
+            <div class="lf-table-title fw-bold">No Audit Activity Recorded</div>
+            <p class="text-muted small mb-0">Audit logs will automatically appear here as workflow events occur.</p>
+          </div>
+        {% endif %}
       </div>
     </div>
   {% endif %}
+
 </div>
 {% endblock %}

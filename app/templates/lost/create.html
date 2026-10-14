@@ -128,16 +128,16 @@
       </fieldset>
 
       <!-- Section 3: Verification (Confidential Clue) -->
-      <fieldset class="form-fieldset border-danger-subtle bg-danger-subtle p-3 p-md-4 mb-4">
-        <legend class="form-legend text-danger mb-3">
-          <i class="bi bi-shield-lock-fill me-2" aria-hidden="true"></i>Confidential Verification Clue
+      <fieldset class="confidential-fieldset lost-mode p-3 p-md-4 mb-4">
+        <legend class="form-legend mb-3">
+          <i class="bi bi-shield-lock-fill text-danger me-2" aria-hidden="true"></i>Confidential Verification Clue
         </legend>
         <div class="verification-clue-field">
-          <label class="form-label fw-bold text-danger mb-2" for="private_verification_detail">
+          <label class="form-label fw-bold mb-2" for="private_verification_detail">
             {{ form.private_verification_detail.label }} <span class="text-danger">*</span>
           </label>
           {{ form.private_verification_detail(class="form-control w-100" + (" is-invalid" if form.private_verification_detail.errors else ""), rows="3", placeholder="e.g. Small scratch near charger port; NASA sticker on bottom left; wallpaper is a mountain landscape.") }}
-          <div class="form-text text-danger-emphasis small mt-2">
+          <div class="form-text small mt-2">
             <strong>Security Guarantee:</strong> This clue is 100% hidden from the public. Only staff review this to verify claimant answers before handover.
           </div>
           {% for error in form.private_verification_detail.errors %}

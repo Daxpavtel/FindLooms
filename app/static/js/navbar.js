@@ -1,84 +1,122 @@
 /**
- * LostFound - Mobile Navbar Drawer Interactivity
- * Accessible, zero-dependency vanilla JS for mobile menu
+ * LostFound - Left Sidebar & Responsive Drawer Navigation
+ * Accessible, zero-dependency vanilla JS for drawer interactivity and theme toggling
  */
 document.addEventListener('DOMContentLoaded', function () {
-  const toggleBtn = document.getElementById('nav-toggle-btn');
-  const toggleCheckbox = document.getElementById('nav-toggle');
-  const navMenu = document.getElementById('nav-menu');
-  const header = document.querySelector('.lf-header');
+  const sidebar = document.getElementById('lf-sidebar');
+  const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+  const sidebarCloseBtn = document.getElementById('sidebar-close-btn');
+  const backdrop = document.getElementById('lf-sidebar-backdrop');
 
-  if (!navMenu) return;
-
-  function setOpen(isOpen) {
-    if (toggleCheckbox) {
-      toggleCheckbox.checked = isOpen;
-    }
-    if (toggleBtn) {
-      toggleBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
-      toggleBtn.classList.toggle('active', isOpen);
-    }
-    navMenu.classList.toggle('is-open', isOpen);
-    if (header) {
-      header.classList.toggle('nav-is-open', isOpen);
-    }
+  function openSidebar() {
+    if (sidebar) sidebar.classList.add('is-open');
+    if (backdrop) backdrop.classList.add('is-open');
+    if (mobileMenuBtn) mobileMenuBtn.setAttribute('aria-expanded', 'true');
+    document.body.classList.add('lf-drawer-open');
   }
 
-  function toggle(e) {
-    if (e) {
+  function closeSidebar() {
+    if (sidebar) sidebar.classList.remove('is-open');
+    if (backdrop) backdrop.classList.remove('is-open');
+    if (mobileMenuBtn) {
+      mobileMenuBtn.setAttribute('aria-expanded', 'false');
+      try {
+        mobileMenuBtn.focus();
+      } catch (e) {}
+    }
+    document.body.classList.remove('lf-drawer-open');
+  }
+
+  if (mobileMenuBtn) {
+    mobileMenuBtn.addEventListener('click', function (e) {
       e.preventDefault();
       e.stopPropagation();
-    }
-    const isCurrentlyOpen = navMenu.classList.contains('is-open') || (toggleCheckbox && toggleCheckbox.checked);
-    setOpen(!isCurrentlyOpen);
-  }
-
-  if (toggleBtn) {
-    toggleBtn.addEventListener('click', toggle);
-    toggleBtn.addEventListener('keydown', function (e) {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        toggle();
+      const isOpen = sidebar && sidebar.classList.contains('is-open');
+      if (isOpen) {
+        closeSidebar();
+      } else {
+        openSidebar();
       }
     });
   }
 
-  if (toggleCheckbox) {
-    toggleCheckbox.addEventListener('change', function () {
-      setOpen(toggleCheckbox.checked);
+  if (sidebarCloseBtn) {
+    sidebarCloseBtn.addEventListener('click', function (e) {
+      e.preventDefault();
+      closeSidebar();
     });
   }
 
-  // Close when clicking any navigation link inside navMenu
-  navMenu.addEventListener('click', function (e) {
-    const link = e.target.closest('a, button');
-    if (link) {
-      setOpen(false);
-    }
-  });
-
-  // Close when clicking outside header / navMenu
-  document.addEventListener('click', function (e) {
-    if (header && !header.contains(e.target)) {
-      setOpen(false);
-    }
-  });
+  if (backdrop) {
+    backdrop.addEventListener('click', function () {
+      closeSidebar();
+    });
+  }
 
   // Close when pressing Escape key
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape' || e.key === 'Esc') {
-      const isCurrentlyOpen = navMenu.classList.contains('is-open') || (toggleCheckbox && toggleCheckbox.checked);
-      if (isCurrentlyOpen) {
-        setOpen(false);
-        if (toggleBtn) toggleBtn.focus();
+      if (sidebar && sidebar.classList.contains('is-open')) {
+        closeSidebar();
       }
     }
   });
 
-  // Auto-close menu if resized to desktop (>= 768px)
+  // Close on mobile (< 992px) when clicking any navigation link
+  if (sidebar) {
+    sidebar.addEventListener('click', function (e) {
+      const link = e.target.closest('a');
+      if (link && window.innerWidth < 992) {
+        closeSidebar();
+      }
+    });
+  }
+
+  // Auto-close drawer if resized to desktop (>= 992px)
   window.addEventListener('resize', function () {
-    if (window.innerWidth >= 768) {
-      setOpen(false);
+    if (window.innerWidth >= 992 && sidebar && sidebar.classList.contains('is-open')) {
+      closeSidebar();
     }
   });
+
+  // Light / Dark Mode Interactive Toggle (Sidebar & Mobile Header)
+  const themeBtns = document.querySelectorAll('.lf-theme-toggle');
+
+  function updateThemeButtons(theme) {
+    const nextTheme = theme === 'dark' ? 'light' : 'dark';
+    const label = 'Switch to ' + nextTheme.charAt(0).toUpperCase() + nextTheme.slice(1) + ' Mode';
+    themeBtns.forEach(function (btn) {
+      btn.setAttribute('title', label);
+      btn.setAttribute('aria-label', label);
+    });
+  }
+
+  const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+  updateThemeButtons(currentTheme);
+
+  themeBtns.forEach(function (btn) {
+    btn.addEventListener('click', function (e) {
+      e.preventDefault();
+      const curr = document.documentElement.getAttribute('data-theme') || 'light';
+      const next = curr === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      try {
+        localStorage.setItem('lf-theme', next);
+      } catch (err) {}
+      updateThemeButtons(next);
+    });
+  });
+
+  // Auto-adapt to OS scheme changes if user hasn't explicitly set a preference
+  if (window.matchMedia) {
+    try {
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function (e) {
+        if (!localStorage.getItem('lf-theme')) {
+          const sysTheme = e.matches ? 'dark' : 'light';
+          document.documentElement.setAttribute('data-theme', sysTheme);
+          updateThemeButtons(sysTheme);
+        }
+      });
+    } catch (err) {}
+  }
 });

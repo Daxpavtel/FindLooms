@@ -65,11 +65,12 @@
         {{ form.description(class="form-control", rows="3") }}
       </div>
 
-      <div class="p-3 bg-danger-subtle border border-danger-subtle rounded-3 mb-3">
-        <label class="form-label fw-bold text-danger" for="private_verification_detail">
-          <i class="bi bi-shield-lock-fill me-1"></i>{{ form.private_verification_detail.label }}
+      <div class="confidential-fieldset lost-mode p-3 mb-3">
+        <label class="form-label fw-bold mb-2" for="private_verification_detail">
+          <i class="bi bi-shield-lock-fill text-danger me-1"></i>{{ form.private_verification_detail.label }}
         </label>
         {{ form.private_verification_detail(class="form-control", rows="2") }}
+        <div class="form-text small mt-1">Security Guarantee: 100% hidden from the public.</div>
       </div>
 
       <div class="mb-4">

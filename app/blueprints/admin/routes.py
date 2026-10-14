@@ -2,7 +2,7 @@ from flask import render_template, redirect, url_for, flash, request, abort
 from flask_login import login_required, current_user
 
 from . import admin_bp
-from app.auth_utils import admin_required
+from app.auth_utils import admin_required, staff_required
 from app.forms.admin_forms import CategoryForm, LocationForm, SettingsForm
 from app.repositories.categories import (
     get_all_categories,
@@ -236,7 +236,7 @@ def toggle_user_status(user_id: str):
 
 @admin_bp.route("/audit")
 @login_required
-@admin_required
+@staff_required
 def audit():
     entity_filter = request.args.get("entity", "").strip()
     action_filter = request.args.get("action", "").strip()

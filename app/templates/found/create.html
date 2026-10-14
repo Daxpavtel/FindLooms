@@ -131,16 +131,16 @@
       </fieldset>
 
       <!-- Section 3: Verification (Confidential Specifics) -->
-      <fieldset class="form-fieldset border-secondary-subtle bg-secondary-subtle p-3 p-md-4 mb-4">
-        <legend class="form-legend text-dark mb-3">
+      <fieldset class="confidential-fieldset p-3 p-md-4 mb-4">
+        <legend class="form-legend mb-3">
           <i class="bi bi-shield-lock-fill text-danger me-2" aria-hidden="true"></i>Staff Confidential Item Specifics
         </legend>
         <div class="verification-clue-field">
-          <label class="form-label fw-bold text-dark mb-2" for="private_details">
+          <label class="form-label fw-bold mb-2" for="private_details">
             {{ form.private_details.label }}
           </label>
           {{ form.private_details(class="form-control w-100" + (" is-invalid" if form.private_details.errors else ""), rows="3", placeholder="e.g. Serial #SN98213; sticker has name 'Alex'; engraving says 'Class of 2024'; lockscreen shows golden retriever.") }}
-          <div class="form-text text-muted small mt-2">
+          <div class="form-text small mt-2">
             <strong>Staff Confidential:</strong> These details are NEVER shown to public users or claimants. Reviewers use this to compare against claimant answers.
           </div>
           {% for error in form.private_details.errors %}

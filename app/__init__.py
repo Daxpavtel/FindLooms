@@ -1,7 +1,7 @@
 import os
 from datetime import datetime
 from flask import Flask, render_template
-from flask_login import LoginManager
+from flask_login import LoginManager, login_required
 from flask_wtf.csrf import CSRFProtect
 from apscheduler.schedulers.background import BackgroundScheduler
 
@@ -92,6 +92,7 @@ def create_app(config_class=Config):
 
     # Direct image upload endpoint for client-side pre-uploads
     @app.route("/api/upload-image", methods=["POST"])
+    @login_required
     def api_upload_image():
         from flask import request, jsonify
         if "image" not in request.files:
@@ -108,17 +109,14 @@ def create_app(config_class=Config):
 
         return jsonify({"success": True, "image_path": saved_path}), 200
 
-    # Landing page
+    # Root route: redirect directly to login (or dashboard if already authenticated)
     @app.route("/")
     def index():
-        from app.db import get_db
-        db = get_db()
-        stats = {
-            "total_lost": db.lost_items.count_documents({}),
-            "total_found": db.found_items.count_documents({}),
-            "total_returned": db.found_items.count_documents({"status": "Returned"})
-        }
-        return render_template("index.html", stats=stats)
+        from flask import redirect, url_for
+        from flask_login import current_user
+        if current_user.is_authenticated:
+            return redirect(url_for("auth.dashboard"))
+        return redirect(url_for("auth.login"))
 
     # Custom Error Handlers (403, 404, 500)
     @app.errorhandler(403)

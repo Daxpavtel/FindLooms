@@ -21,10 +21,10 @@
   </div>
 
   {% if items %}
-    <div class="card shadow-sm border rounded-4 bg-white overflow-hidden mb-4">
+    <div class="card lf-table-card overflow-hidden mb-4">
       <div class="table-container">
         <table class="table table-hover align-middle mb-0 responsive-table">
-          <thead class="table-light small">
+          <thead class="small text-uppercase">
             <tr>
               <th scope="col">Item Ref</th>
               <th scope="col">Item Name</th>
@@ -38,9 +38,11 @@
           <tbody>
             {% for it in items %}
               <tr>
-                <td data-label="Item Ref" class="fw-bold text-secondary">{{ it.reference_no }}</td>
+                <td data-label="Item Ref">
+                  <span class="lf-table-ref">{{ it.reference_no }}</span>
+                </td>
                 <td data-label="Item Name">
-                  <div class="fw-bold text-dark">{{ it.name }}</div>
+                  <div class="fw-bold lf-table-title">{{ it.name }}</div>
                   <small class="text-muted">{{ it.color }}</small>
                 </td>
                 <td data-label="Category"><i class="bi {{ it.category.icon }} me-1" aria-hidden="true"></i>{{ it.category.name }}</td>

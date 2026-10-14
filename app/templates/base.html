@@ -3,160 +3,277 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{% block title %}LostFound{% endblock %} - Smart Lost & Found System</title>
+  <title>{% block title %}LostFound{% endblock %} - Smart Institutional Lost & Found</title>
+  
+  <!-- Premium Fonts: Plus Jakarta Sans & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
   <!-- Bootstrap 5 CSS CDN (CSS Only, Zero JS) -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
-  <!-- Bootstrap Icons CDN (CSS Only) -->
+  <!-- Bootstrap Icons CDN -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-  <!-- Unified Design System (Pure CSS) -->
+  <!-- Production Design System Stylesheet -->
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+  <!-- Instant Theme Initializer (Zero FOUC) -->
+  <script>
+    (function() {
+      try {
+        var stored = localStorage.getItem('lf-theme');
+        var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        var theme = stored ? stored : (prefersDark ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', theme);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
 </head>
 <body>
   <!-- Accessibility: Skip to Content Link -->
   <a href="#main-content" class="skip-link">Skip to main content</a>
 
-  <!-- Header / Navigation (Pure HTML & CSS - Zero Client JS) -->
-  <header class="lf-header" role="banner">
-    <div class="lf-nav-container">
-      <div class="lf-nav-bar">
+  {% set show_nav = not (hide_navbar or (request.endpoint == 'auth.login')) %}
+
+  <!-- Layout Container: Left Sidebar + Main Content -->
+  <div class="lf-app-layout {% if not show_nav %}lf-layout-no-nav{% endif %}">
+    
+    {% if show_nav %}
+    <!-- LEFT-SIDED SIDEBAR NAVIGATION -->
+    <aside class="lf-sidebar" id="lf-sidebar" role="navigation" aria-label="Main Navigation">
+      <!-- Sidebar Brand Header -->
+      <div class="lf-sidebar-header">
         <a href="{{ url_for('index') }}" class="lf-brand" aria-label="LostFound Home">
-          <i class="bi bi-compass-fill me-2" aria-hidden="true"></i>
-          <span>Lost<span class="text-primary">Found</span></span>
+          <span class="lf-brand-mark">
+            <i class="bi bi-radar" aria-hidden="true"></i>
+          </span>
+          <span class="lf-brand-text">
+            <span class="lf-brand-title">Lost<span class="lf-brand-accent">Found</span></span>
+            <span class="lf-brand-pill">CAMPUS</span>
+          </span>
         </a>
 
-        <!-- Mobile Hamburger Toggle (Accessible Button / Label) -->
-        <label for="nav-toggle" id="nav-toggle-btn" class="lf-nav-toggle-btn" tabindex="0" role="button" aria-controls="nav-menu" aria-expanded="false" aria-label="Toggle navigation menu">
-          <span class="lf-nav-toggle-icon" id="nav-toggle-icon" aria-hidden="true">
-            <span></span>
-            <span></span>
-            <span></span>
-          </span>
-        </label>
+        <!-- Mobile Drawer Close Button -->
+        <button type="button" class="lf-sidebar-close d-lg-none" id="sidebar-close-btn" aria-label="Close navigation sidebar">
+          <i class="bi bi-x-lg" aria-hidden="true"></i>
+        </button>
       </div>
 
-      <!-- Progressive Enhancement Checkbox for Zero-JS Fallback -->
-      <input type="checkbox" id="nav-toggle" class="lf-nav-toggle-input" aria-label="Toggle navigation menu">
-
-      <!-- Navigation Content -->
-      <div id="nav-menu" class="lf-nav-content">
-        <!-- Main Navigation Links -->
-        <nav class="lf-nav-links" aria-label="Main Navigation">
+      <!-- Scrollable Navigation Items -->
+      <div class="lf-sidebar-scroll">
+        <!-- Main Section -->
+        <div class="lf-nav-group">
+          <div class="lf-nav-group-title">MAIN MENU</div>
           {% if current_user.is_authenticated %}
-            <a href="{{ url_for('auth.dashboard') }}" class="lf-nav-btn {% if request.endpoint == 'auth.dashboard' %}active{% endif %}" {% if request.endpoint == 'auth.dashboard' %}aria-current="page"{% endif %}>
-              <i class="bi bi-speedometer2 text-primary me-1" aria-hidden="true"></i>Dashboard
+            <a href="{{ url_for('auth.dashboard') }}" class="lf-nav-item {% if request.endpoint == 'auth.dashboard' %}active{% endif %}" {% if request.endpoint == 'auth.dashboard' %}aria-current="page"{% endif %}>
+              <i class="bi bi-grid-1x2-fill" aria-hidden="true"></i>
+              <span>Dashboard</span>
             </a>
           {% endif %}
 
-          <a href="{{ url_for('lost.list_items') }}" class="lf-nav-btn {% if request.endpoint and request.endpoint.startswith('lost.') %}active{% endif %}" {% if request.endpoint and request.endpoint.startswith('lost.') %}aria-current="page"{% endif %}>
-            <i class="bi bi-search text-danger me-1" aria-hidden="true"></i>Lost Reports
+          <a href="{{ url_for('lost.list_items') }}" class="lf-nav-item {% if request.endpoint and request.endpoint.startswith('lost.') %}active{% endif %}" {% if request.endpoint and request.endpoint.startswith('lost.') %}aria-current="page"{% endif %}>
+            <i class="bi bi-search-heart text-danger" aria-hidden="true"></i>
+            <span>Lost Reports</span>
           </a>
-          <a href="{{ url_for('found.list_items') }}" class="lf-nav-btn {% if request.endpoint and request.endpoint.startswith('found.') %}active{% endif %}" {% if request.endpoint and request.endpoint.startswith('found.') %}aria-current="page"{% endif %}>
-            <i class="bi bi-box-seam text-success me-1" aria-hidden="true"></i>Found Items
+
+          <a href="{{ url_for('found.list_items') }}" class="lf-nav-item {% if request.endpoint and request.endpoint.startswith('found.') %}active{% endif %}" {% if request.endpoint and request.endpoint.startswith('found.') %}aria-current="page"{% endif %}>
+            <i class="bi bi-box-seam-fill text-success" aria-hidden="true"></i>
+            <span>Found Items</span>
           </a>
 
           {% if current_user.is_authenticated %}
-            <a href="{{ url_for('claims.my_claims') }}" class="lf-nav-btn {% if request.endpoint == 'claims.my_claims' %}active{% endif %}" {% if request.endpoint == 'claims.my_claims' %}aria-current="page"{% endif %}>
-              <i class="bi bi-file-earmark-check text-success me-1" aria-hidden="true"></i>My Claims
+            <a href="{{ url_for('claims.my_claims') }}" class="lf-nav-item {% if request.endpoint == 'claims.my_claims' %}active{% endif %}" {% if request.endpoint == 'claims.my_claims' %}aria-current="page"{% endif %}>
+              <i class="bi bi-patch-check-fill text-info" aria-hidden="true"></i>
+              <span>My Claims</span>
             </a>
           {% endif %}
 
-          <a href="{{ url_for('views.map_view') }}" class="lf-nav-btn {% if request.endpoint == 'views.map_view' %}active{% endif %}" {% if request.endpoint == 'views.map_view' %}aria-current="page"{% endif %}>
-            <i class="bi bi-geo-alt text-primary me-1" aria-hidden="true"></i>Map
+          <a href="{{ url_for('views.calendar_view') }}" class="lf-nav-item {% if request.endpoint and 'calendar' in request.endpoint %}active{% endif %}" {% if request.endpoint and 'calendar' in request.endpoint %}aria-current="page"{% endif %}>
+            <i class="bi bi-calendar3-event text-secondary" aria-hidden="true"></i>
+            <span>Calendar</span>
           </a>
-          <a href="{{ url_for('views.calendar_view') }}" class="lf-nav-btn {% if request.endpoint and 'calendar' in request.endpoint %}active{% endif %}" {% if request.endpoint and 'calendar' in request.endpoint %}aria-current="page"{% endif %}>
-            <i class="bi bi-calendar3 text-primary me-1" aria-hidden="true"></i>Calendar
-          </a>
-
-          {% if current_user.is_authenticated and current_user.is_staff %}
-            <a href="{{ url_for('kanban.board') }}" class="lf-nav-btn {% if request.endpoint and request.endpoint.startswith('kanban.') %}active{% endif %}" {% if request.endpoint and request.endpoint.startswith('kanban.') %}aria-current="page"{% endif %}>
-              <i class="bi bi-kanban text-primary me-1" aria-hidden="true"></i>Kanban
-            </a>
-            <a href="{{ url_for('claims.queue') }}" class="lf-nav-btn {% if request.endpoint == 'claims.queue' %}active{% endif %}" {% if request.endpoint == 'claims.queue' %}aria-current="page"{% endif %}>
-              <i class="bi bi-check2-square text-info me-1" aria-hidden="true"></i>Review Claims
-            </a>
-            <a href="{{ url_for('reports.index') }}" class="lf-nav-btn {% if request.endpoint and request.endpoint.startswith('reports.') %}active{% endif %}" {% if request.endpoint and request.endpoint.startswith('reports.') %}aria-current="page"{% endif %}>
-              <i class="bi bi-bar-chart text-dark me-1" aria-hidden="true"></i>Reports
-            </a>
-          {% endif %}
-
-          {% if current_user.is_authenticated and current_user.is_admin %}
-            <a href="{{ url_for('admin.categories') }}" class="lf-nav-btn {% if request.endpoint and 'categories' in request.endpoint %}active{% endif %}" {% if request.endpoint and 'categories' in request.endpoint %}aria-current="page"{% endif %}>
-              <i class="bi bi-tags text-primary me-1" aria-hidden="true"></i>Categories
-            </a>
-            <a href="{{ url_for('admin.locations') }}" class="lf-nav-btn {% if request.endpoint and 'locations' in request.endpoint %}active{% endif %}" {% if request.endpoint and 'locations' in request.endpoint %}aria-current="page"{% endif %}>
-              <i class="bi bi-pin-map text-primary me-1" aria-hidden="true"></i>Locations
-            </a>
-            <a href="{{ url_for('admin.settings') }}" class="lf-nav-btn {% if request.endpoint == 'admin.settings' %}active{% endif %}" {% if request.endpoint == 'admin.settings' %}aria-current="page"{% endif %}>
-              <i class="bi bi-gear text-secondary me-1" aria-hidden="true"></i>Settings
-            </a>
-            <a href="{{ url_for('admin.users') }}" class="lf-nav-btn {% if request.endpoint and 'users' in request.endpoint %}active{% endif %}" {% if request.endpoint and 'users' in request.endpoint %}aria-current="page"{% endif %}>
-              <i class="bi bi-people text-info me-1" aria-hidden="true"></i>Users
-            </a>
-            <a href="{{ url_for('admin.archive_panel') }}" class="lf-nav-btn {% if request.endpoint and 'archive' in request.endpoint %}active{% endif %}" {% if request.endpoint and 'archive' in request.endpoint %}aria-current="page"{% endif %}>
-              <i class="bi bi-archive text-warning me-1" aria-hidden="true"></i>Archive
-            </a>
-            <a href="{{ url_for('admin.audit') }}" class="lf-nav-btn {% if request.endpoint == 'admin.audit' %}active{% endif %}" {% if request.endpoint == 'admin.audit' %}aria-current="page"{% endif %}>
-              <i class="bi bi-journal-text text-dark me-1" aria-hidden="true"></i>Audit Log
-            </a>
-          {% endif %}
-        </nav>
-
-        <!-- User Controls / Auth -->
-        <div class="lf-nav-auth" aria-label="User Navigation">
-          {% if current_user.is_authenticated %}
-            <a href="{{ url_for('auth.profile') }}" class="lf-nav-btn {% if request.endpoint == 'auth.profile' %}active{% endif %}" {% if request.endpoint == 'auth.profile' %}aria-current="page"{% endif %} title="Profile ({{ current_user.role }})">
-              <i class="bi bi-person-circle text-secondary me-1" aria-hidden="true"></i>Profile
-            </a>
-            <form action="{{ url_for('auth.logout') }}" method="POST" class="d-inline m-0 p-0">
-              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-              <button type="submit" class="lf-nav-btn lf-nav-btn-logout" title="Sign Out" aria-label="Sign Out">
-                <i class="bi bi-box-arrow-right text-danger me-1" aria-hidden="true"></i>Sign Out
-              </button>
-            </form>
-          {% else %}
-            <a href="{{ url_for('auth.login') }}" class="lf-nav-btn {% if request.endpoint == 'auth.login' %}active{% endif %}" {% if request.endpoint == 'auth.login' %}aria-current="page"{% endif %}>
-              <i class="bi bi-box-arrow-in-right text-primary me-1" aria-hidden="true"></i>Sign In
-            </a>
-            <a href="{{ url_for('auth.register') }}" class="lf-nav-btn lf-nav-btn-primary {% if request.endpoint == 'auth.register' %}active{% endif %}" {% if request.endpoint == 'auth.register' %}aria-current="page"{% endif %}>
-              <i class="bi bi-person-plus me-1" aria-hidden="true"></i>Register
-            </a>
-          {% endif %}
         </div>
-      </div>
-    </div>
-  </header>
 
-  <!-- Flash Messages -->
-  <div class="container-fluid px-3 px-md-4 mt-3" style="max-width: 1440px;">
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        {% for category, message in messages %}
-          {% set cat_class = 'danger' if category in ['danger', 'error'] else ('success' if category == 'success' else ('warning' if category == 'warning' else 'info')) %}
-          <div class="alert alert-{{ cat_class }} shadow-sm" role="alert">
-            <i class="bi bi-info-circle-fill fs-5" aria-hidden="true"></i>
-            <div class="flex-grow-1">{{ message }}</div>
+        <!-- Operations Section (Staff & Admin) -->
+        {% if current_user.is_authenticated and current_user.is_staff %}
+          <div class="lf-nav-group">
+            <div class="lf-nav-group-title">OPERATIONS</div>
+            <a href="{{ url_for('kanban.board') }}" class="lf-nav-item {% if request.endpoint and request.endpoint.startswith('kanban.') %}active{% endif %}" {% if request.endpoint and request.endpoint.startswith('kanban.') %}aria-current="page"{% endif %}>
+              <i class="bi bi-kanban-fill text-primary" aria-hidden="true"></i>
+              <span>Kanban Board</span>
+            </a>
+            <a href="{{ url_for('claims.queue') }}" class="lf-nav-item {% if request.endpoint and request.endpoint.startswith('claims.') and request.endpoint != 'claims.my_claims' %}active{% endif %}" {% if request.endpoint and request.endpoint.startswith('claims.') and request.endpoint != 'claims.my_claims' %}aria-current="page"{% endif %}>
+              <i class="bi bi-check2-circle text-warning" aria-hidden="true"></i>
+              <span>Review Queue</span>
+            </a>
+            <a href="{{ url_for('reports.index') }}" class="lf-nav-item {% if request.endpoint and request.endpoint.startswith('reports.') %}active{% endif %}" {% if request.endpoint and request.endpoint.startswith('reports.') %}aria-current="page"{% endif %}>
+              <i class="bi bi-graph-up text-secondary" aria-hidden="true"></i>
+              <span>Reports</span>
+            </a>
+            <a href="{{ url_for('admin.audit') }}" class="lf-nav-item {% if request.endpoint == 'admin.audit' %}active{% endif %}" {% if request.endpoint == 'admin.audit' %}aria-current="page"{% endif %}>
+              <i class="bi bi-journal-code text-info" aria-hidden="true"></i>
+              <span>Audit Trail</span>
+            </a>
           </div>
-        {% endfor %}
+        {% endif %}
+
+        <!-- Administration Section (Admin Only) -->
+        {% if current_user.is_authenticated and current_user.is_admin %}
+          <div class="lf-nav-group">
+            <div class="lf-nav-group-title">ADMINISTRATION</div>
+            <a href="{{ url_for('admin.categories') }}" class="lf-nav-item {% if request.endpoint == 'admin.categories' %}active{% endif %}">
+              <i class="bi bi-tags-fill text-primary" aria-hidden="true"></i>
+              <span>Categories</span>
+            </a>
+            <a href="{{ url_for('admin.locations') }}" class="lf-nav-item {% if request.endpoint == 'admin.locations' %}active{% endif %}">
+              <i class="bi bi-pin-map-fill text-danger" aria-hidden="true"></i>
+              <span>Locations</span>
+            </a>
+            <a href="{{ url_for('admin.users') }}" class="lf-nav-item {% if request.endpoint == 'admin.users' %}active{% endif %}">
+              <i class="bi bi-people-fill text-info" aria-hidden="true"></i>
+              <span>Users & Roles</span>
+            </a>
+            <a href="{{ url_for('admin.archive_panel') }}" class="lf-nav-item {% if request.endpoint == 'admin.archive_panel' %}active{% endif %}">
+              <i class="bi bi-archive-fill text-warning" aria-hidden="true"></i>
+              <span>Retention & Archive</span>
+            </a>
+            <a href="{{ url_for('admin.settings') }}" class="lf-nav-item {% if request.endpoint == 'admin.settings' %}active{% endif %}">
+              <i class="bi bi-sliders text-dark" aria-hidden="true"></i>
+              <span>System Settings</span>
+            </a>
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- Sidebar Footer (Theme Toggle + User Profile / Auth) -->
+      <div class="lf-sidebar-footer">
+        <!-- Theme Toggle Bar -->
+        <button type="button" class="lf-theme-toggle lf-sidebar-theme-btn" id="theme-toggle-btn" aria-label="Toggle light or dark theme" title="Toggle Light / Dark Mode">
+          <i class="bi bi-sun-fill lf-icon-sun" aria-hidden="true"></i>
+          <i class="bi bi-moon-stars-fill lf-icon-moon" aria-hidden="true"></i>
+          <span class="ms-2 small fw-semibold">Toggle Theme</span>
+        </button>
+
+        {% if current_user.is_authenticated %}
+          <div class="lf-sidebar-user-card">
+            <div class="d-flex align-items-center gap-2 overflow-hidden flex-grow-1">
+              <span class="lf-user-avatar flex-shrink-0" title="{{ current_user.name }}">{{ current_user.name[:1] | upper }}</span>
+              <div class="lf-user-meta overflow-hidden">
+                <span class="lf-user-name text-truncate d-block" style="max-width: 120px;" title="{{ current_user.name }}" data-bs-toggle="tooltip">{{ current_user.name }}</span>
+                <span class="lf-user-role lf-role-{{ current_user.role }}">{{ current_user.role | capitalize }}</span>
+              </div>
+            </div>
+            <div class="d-flex align-items-center gap-1 flex-shrink-0">
+              <a href="{{ url_for('auth.profile') }}" class="btn btn-sm btn-icon" title="Profile Settings" aria-label="Profile Settings">
+                <i class="bi bi-gear-fill" aria-hidden="true"></i>
+              </a>
+              <form action="{{ url_for('auth.logout') }}" method="POST" class="d-inline m-0 p-0">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="btn btn-sm btn-icon text-danger" title="Sign Out" aria-label="Sign Out">
+                  <i class="bi bi-box-arrow-right" aria-hidden="true"></i>
+                </button>
+              </form>
+            </div>
+          </div>
+        {% else %}
+          <div class="d-grid gap-2">
+            <a href="{{ url_for('auth.login') }}" class="btn btn-outline-primary btn-sm fw-semibold">
+              <i class="bi bi-box-arrow-in-right me-1" aria-hidden="true"></i>Sign In
+            </a>
+            <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-sm fw-semibold">
+              <i class="bi bi-person-plus-fill me-1" aria-hidden="true"></i>Register
+            </a>
+          </div>
+        {% endif %}
+      </div>
+    </aside>
+
+    <!-- Mobile Backdrop -->
+    <div class="lf-sidebar-backdrop" id="lf-sidebar-backdrop" aria-hidden="true"></div>
+    {% endif %}
+
+    <!-- MAIN WRAPPER (Top mobile header + Main Content + Footer) -->
+    <div class="lf-main-wrapper">
+      {% if show_nav %}
+      <!-- Mobile Top Bar (< 992px) -->
+      <header class="lf-mobile-header d-lg-none" role="banner">
+        <button type="button" class="lf-mobile-menu-btn" id="mobile-menu-btn" aria-label="Open sidebar menu" aria-controls="lf-sidebar" aria-expanded="false">
+          <i class="bi bi-list fs-3" aria-hidden="true"></i>
+        </button>
+
+        <a href="{{ url_for('index') }}" class="lf-brand">
+          <span class="lf-brand-mark" style="width: 32px; height: 32px; font-size: 1rem;">
+            <i class="bi bi-radar" aria-hidden="true"></i>
+          </span>
+          <span class="lf-brand-text">
+            <span class="lf-brand-title fs-5">Lost<span class="lf-brand-accent">Found</span></span>
+          </span>
+        </a>
+
+        <!-- Mobile quick theme toggle -->
+        <button type="button" class="lf-theme-toggle lf-mobile-theme-btn" id="mobile-theme-toggle-btn" aria-label="Toggle theme">
+          <i class="bi bi-sun-fill lf-icon-sun" aria-hidden="true"></i>
+          <i class="bi bi-moon-stars-fill lf-icon-moon" aria-hidden="true"></i>
+        </button>
+      </header>
+      {% else %}
+      <!-- Minimalist Theme Toggle for Standalone Auth Pages -->
+      <header class="d-flex justify-content-end p-3 p-md-4 position-absolute top-0 end-0 z-3" role="banner">
+        <button type="button" class="lf-theme-toggle" id="theme-toggle-btn" aria-label="Toggle light or dark theme" title="Toggle Light / Dark Mode">
+          <i class="bi bi-sun-fill lf-icon-sun" aria-hidden="true"></i>
+          <i class="bi bi-moon-stars-fill lf-icon-moon" aria-hidden="true"></i>
+        </button>
+      </header>
       {% endif %}
-    {% endwith %}
+
+      <!-- Flash Messages Banner Container -->
+      <div class="container-fluid px-3 px-md-4 {% if show_nav %}mt-3{% else %}mt-5 pt-3{% endif %}" style="max-width: {% if show_nav %}1440px{% else %}520px{% endif %};">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              {% set cat_class = 'danger' if category in ['danger', 'error'] else ('success' if category == 'success' else ('warning' if category == 'warning' else 'info')) %}
+              <div class="alert lf-alert alert-{{ cat_class }} shadow-sm d-flex align-items-center gap-3 rounded-4 p-3 mb-3" role="alert">
+                <div class="lf-alert-icon">
+                  {% if cat_class == 'danger' %}<i class="bi bi-x-octagon-fill text-danger fs-5"></i>
+                  {% elif cat_class == 'success' %}<i class="bi bi-check-circle-fill text-success fs-5"></i>
+                  {% elif cat_class == 'warning' %}<i class="bi bi-exclamation-triangle-fill text-warning fs-5"></i>
+                  {% else %}<i class="bi bi-info-circle-fill text-primary fs-5"></i>{% endif %}
+                </div>
+                <div class="flex-grow-1 fw-medium">{{ message }}</div>
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+      </div>
+
+      <!-- Main Content Area -->
+      <main id="main-content" class="lf-main-content container-fluid px-3 px-md-4 {% if show_nav %}py-3{% else %}py-0 d-flex flex-column justify-content-center align-items-center{% endif %}" style="max-width: 1440px;">
+        {% block content %}{% endblock %}
+      </main>
+
+      {% if show_nav %}
+      <!-- Production Footer -->
+      <footer class="lf-footer mt-auto py-3 border-top" role="contentinfo">
+        <div class="container-fluid px-3 px-md-4 d-flex flex-wrap justify-content-between align-items-center gap-2" style="max-width: 1440px;">
+          <div class="d-flex align-items-center gap-2 small text-muted">
+            <span class="lf-status-dot" aria-hidden="true"></span>
+            <span>LostFound Enterprise Hub</span>
+            <span>•</span>
+            <span>&copy; 2026 Campus Network</span>
+          </div>
+          <div class="d-flex align-items-center gap-3 small text-muted">
+            <span><i class="bi bi-shield-check text-success me-1"></i>Zero-Leakage Privacy</span>
+            <span>•</span>
+            <span><i class="bi bi-lock-fill text-primary me-1"></i>RBAC Protected</span>
+          </div>
+        </div>
+      </footer>
+      {% endif %}
+    </div>
   </div>
 
-  <!-- Main Content Area -->
-  <main id="main-content" class="container-fluid px-3 px-md-4 py-3" style="max-width: 1440px;">
-    {% block content %}{% endblock %}
-  </main>
-
-  <!-- Footer -->
-  <footer class="mt-auto border-top py-3 text-muted" role="contentinfo">
-    <div class="container-fluid px-3 px-md-4 d-flex flex-wrap justify-content-between align-items-center gap-2" style="max-width: 1440px;">
-      <div class="small">
-        &copy; 2026 <strong>LostFound: The Smart Lost & Found Management System</strong>. Enterprise Ready.
-      </div>
-      <div class="small text-muted">
-        <i class="bi bi-shield-check text-success me-1" aria-hidden="true"></i>Strictly Server-Side Rendered (Zero Client JS) • Role-Based Security
-      </div>
-    </div>
-  </footer>
   <script src="{{ url_for('static', filename='js/navbar.js') }}"></script>
   {% block scripts %}{% endblock %}
 </body>

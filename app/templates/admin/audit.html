@@ -11,7 +11,7 @@
   </div>
 
   <!-- Filters -->
-  <div class="card shadow-sm border rounded-3 p-3 mb-4 bg-white">
+  <div class="card lf-card p-3 mb-4">
     <form method="GET" action="{{ url_for('admin.audit') }}" class="row g-2 align-items-center" role="search" aria-label="Filter audit logs">
       <div class="col-12 col-md-5">
         <label for="audit-action" class="visually-hidden">Action Filter</label>
@@ -38,10 +38,10 @@
 
   <!-- Audit Logs Table -->
   {% if logs %}
-    <div class="card shadow-sm border rounded-4 bg-white overflow-hidden mb-4">
+    <div class="card lf-table-card overflow-hidden mb-4">
       <div class="table-container">
         <table class="table table-hover align-middle mb-0 responsive-table">
-          <thead class="table-light small">
+          <thead class="small text-uppercase">
             <tr>
               <th scope="col">Timestamp</th>
               <th scope="col">Action</th>
@@ -54,13 +54,13 @@
           <tbody>
             {% for log in logs %}
               <tr>
-                <td data-label="Timestamp" class="small text-muted">{{ log.timestamp | format_date("%Y-%m-%d %H:%M:%S") }}</td>
+                <td data-label="Timestamp" class="small text-muted font-monospace">{{ log.timestamp | format_date("%Y-%m-%d %H:%M:%S") }}</td>
                 <td data-label="Action">
                   <span class="badge bg-secondary text-uppercase">{{ log.action }}</span>
                 </td>
                 <td data-label="Actor">
-                  <div class="fw-semibold text-dark">{{ log.actor.name }}</div>
-                  <small class="text-muted">{{ log.actor.email }}</small>
+                  <div class="fw-semibold lf-table-title">{{ log.actor.name }}</div>
+                  <small class="text-muted font-monospace">{{ log.actor.email }}</small>
                 </td>
                 <td data-label="Entity"><code>{{ log.entity_type }}</code></td>
                 <td data-label="Entity ID" class="small font-monospace">{{ log.entity_id or "—" }}</td>
@@ -94,10 +94,10 @@
     {% endif %}
 
   {% else %}
-    <div class="text-center py-5 bg-white rounded-3 border">
+    <div class="card lf-card text-center py-5">
       <i class="bi bi-journal-text display-3 text-muted" aria-hidden="true"></i>
-      <h2 class="h4 mt-3 fw-bold text-dark">No Audit Logs Found</h2>
-      <p class="text-muted small">No audit log records matched your query.</p>
+      <h2 class="h4 mt-3 fw-bold lf-table-title">No Audit Logs Found</h2>
+      <p class="text-muted small mb-0">No audit log records matched your query.</p>
     </div>
   {% endif %}
 </div>

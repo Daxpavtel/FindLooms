@@ -65,13 +65,13 @@
 
     <!-- Locations Table -->
     <div class="col-12 col-lg-8">
-      <div class="card shadow-sm border rounded-4 bg-white overflow-hidden">
-        <div class="card-header bg-white py-3 px-3 px-sm-4">
-          <h2 class="h5 fw-bold m-0">Existing Locations ({{ locations | length }})</h2>
+      <div class="card lf-table-card overflow-hidden">
+        <div class="card-header py-3 px-3 px-sm-4 border-bottom">
+          <h2 class="h5 fw-bold m-0 lf-table-title">Existing Locations ({{ locations | length }})</h2>
         </div>
         <div class="table-container">
           <table class="table table-hover align-middle mb-0 responsive-table">
-            <thead class="table-light small">
+            <thead class="small text-uppercase">
               <tr>
                 <th scope="col">Name</th>
                 <th scope="col">Building</th>
@@ -84,9 +84,9 @@
             <tbody>
               {% for loc in locations %}
                 <tr>
-                  <td data-label="Name" class="fw-bold text-dark">{{ loc.name }}</td>
+                  <td data-label="Name" class="fw-bold lf-table-title">{{ loc.name }}</td>
                   <td data-label="Building">{{ loc.building }}</td>
-                  <td data-label="Zone"><span class="badge bg-light text-dark border">{{ loc.zone }}</span></td>
+                  <td data-label="Zone"><span class="badge-category">{{ loc.zone }}</span></td>
                   <td data-label="GPS Coordinates" class="small font-monospace">{{ loc.latitude | round(4) }}, {{ loc.longitude | round(4) }}</td>
                   <td data-label="Status">
                     {% if loc.is_active %}

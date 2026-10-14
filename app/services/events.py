@@ -13,14 +13,16 @@ def emit_event(
     entity_type: str,
     entity_id: Optional[Any] = None,
     actor_id: Optional[Any] = None,
-    payload: Optional[Dict[str, Any]] = None
+    payload: Optional[Dict[str, Any]] = None,
+    details: Optional[Dict[str, Any]] = None,
+    **kwargs
 ) -> None:
     """
     Central event dispatch hook.
     1. Immediately records the event to immutable audit log.
     2. Dispatches to future notification channels (hook point).
     """
-    details = payload or {}
+    details = payload or details or {}
     
     # 1. Audit log integration
     log_event(

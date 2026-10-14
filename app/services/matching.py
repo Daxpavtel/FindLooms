@@ -195,7 +195,7 @@ def run_matching_for_lost_item(lost_id: Any) -> List[Dict[str, Any]]:
             # Auto-promote found item if still Unmatched
             if found.get("status") == "Unmatched":
                 update_found_item(found["_id"], {"status": "Possible Match"})
-                emit_event("status_changed", "found_item", found["_id"], details={
+                emit_event("status_changed", "found_item", found["_id"], actor_id=None, payload={
                     "old_status": "Unmatched",
                     "new_status": "Possible Match",
                     "reason": f"Strong match with {lost.get('reference_no')} (Score: {score})"
@@ -204,7 +204,7 @@ def run_matching_for_lost_item(lost_id: Any) -> List[Dict[str, Any]]:
     # Auto-promote lost item if still Reported
     if has_strong_match and lost.get("stage") == "Reported":
         update_lost_item(lost["_id"], {"stage": "Possible Match"})
-        emit_event("stage_changed", "lost_item", lost["_id"], details={
+        emit_event("stage_changed", "lost_item", lost["_id"], actor_id=None, payload={
             "old_stage": "Reported",
             "new_stage": "Possible Match",
             "reason": f"Strong match found (Threshold: {strong_threshold})"
@@ -247,7 +247,7 @@ def run_matching_for_found_item(found_id: Any) -> List[Dict[str, Any]]:
             has_strong_match = True
             if lost.get("stage") == "Reported":
                 update_lost_item(lost["_id"], {"stage": "Possible Match"})
-                emit_event("stage_changed", "lost_item", lost["_id"], details={
+                emit_event("stage_changed", "lost_item", lost["_id"], actor_id=None, payload={
                     "old_stage": "Reported",
                     "new_stage": "Possible Match",
                     "reason": f"Strong match with {found.get('reference_no')} (Score: {score})"
@@ -255,7 +255,7 @@ def run_matching_for_found_item(found_id: Any) -> List[Dict[str, Any]]:
 
     if has_strong_match and found.get("status") == "Unmatched":
         update_found_item(found["_id"], {"status": "Possible Match"})
-        emit_event("status_changed", "found_item", found["_id"], details={
+        emit_event("status_changed", "found_item", found["_id"], actor_id=None, payload={
             "old_status": "Unmatched",
             "new_status": "Possible Match",
             "reason": f"Strong match found (Threshold: {strong_threshold})"

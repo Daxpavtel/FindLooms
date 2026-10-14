@@ -97,9 +97,9 @@
 
           <!-- Staff-Only Confidential Specifics -->
           {% if is_staff and item.private_details %}
-            <div class="p-3 bg-secondary-subtle border border-secondary-subtle rounded-3 mb-3">
-              <h2 class="h6 fw-bold text-dark mb-1">
-                <i class="bi bi-shield-lock-fill text-danger me-1" aria-hidden="true"></i>Staff Only: Confidential Item Specifics
+            <div class="secret-detail-box p-3 rounded-3 mb-3">
+              <h2 class="h6 fw-bold text-danger mb-1">
+                <i class="bi bi-shield-lock-fill me-1" aria-hidden="true"></i>Staff Only: Confidential Item Specifics
               </h2>
               <p class="m-0 text-dark small font-monospace" style="white-space: pre-wrap;">{{ item.private_details }}</p>
               <div class="mt-2 text-muted" style="font-size: 0.75rem;">

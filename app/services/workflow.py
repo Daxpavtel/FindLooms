@@ -26,9 +26,9 @@ FOUND_TRANSITIONS = {
 }
 
 CLAIM_TRANSITIONS = {
-    "New": {"Under Review", "Rejected"},
+    "New": {"Under Review", "Approved", "Rejected"},
     "Under Review": {"Approved", "Rejected"},
-    "Approved": {"Returned"},
+    "Approved": {"Returned", "Rejected"},
     "Rejected": set(),
     "Returned": set()
 }

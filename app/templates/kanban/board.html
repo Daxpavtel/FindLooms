@@ -1,86 +1,97 @@
 {% extends "base.html" %}
-{% block title %}Kanban Workflow Board{% endblock %}
+{% block title %}Kanban Workflow Board — LostFound{% endblock %}
 
 {% block content %}
-<div class="container-fluid py-2">
+<div class="container-fluid py-3 px-2 px-md-3">
   <!-- Board Header & Filters -->
-  <div class="page-header d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3 pb-2 border-bottom">
-    <div>
-      <h1 class="h3 fw-bold mb-1"><i class="bi bi-kanban text-primary me-2" aria-hidden="true"></i>Custody & Workflow Kanban Board</h1>
-      <p class="text-muted small m-0">Drag-free server-side state machine. Move items across stages using verified workflow buttons.</p>
+  <div class="card border rounded-4 p-3 p-md-4 bg-white shadow-sm mb-4">
+    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-start align-items-lg-center gap-3">
+      <div>
+        <div class="d-flex align-items-center gap-2 mb-1">
+          <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1 small">
+            <i class="bi bi-kanban-fill me-1"></i>Custody Operations
+          </span>
+          <span class="badge bg-secondary-subtle text-secondary small">Zero-Client-JS State Machine</span>
+        </div>
+        <h1 class="h3 fw-bold text-dark m-0">Institutional Custody & Workflow Board</h1>
+      </div>
+
+      <!-- GET Filter Form -->
+      <form method="GET" action="{{ url_for('kanban.board') }}" class="d-flex flex-wrap gap-2 align-items-center w-100 w-lg-auto" role="search" aria-label="Filter Kanban board">
+        <select name="type" class="form-select form-select-sm" style="width: auto; min-height: 38px;" aria-label="Filter by item type">
+          <option value="all" {% if current_type == 'all' %}selected{% endif %}>All Item Types</option>
+          <option value="lost" {% if current_type == 'lost' %}selected{% endif %}>Lost Reports Only</option>
+          <option value="found" {% if current_type == 'found' %}selected{% endif %}>Found Items Only</option>
+        </select>
+
+        <select name="category" class="form-select form-select-sm" style="width: auto; min-height: 38px;" aria-label="Filter by category">
+          <option value="">All Categories</option>
+          {% for cat in categories %}
+            <option value="{{ cat._id }}" {% if current_category == (cat._id|string) %}selected{% endif %}>
+              {{ cat.name }}
+            </option>
+          {% endfor %}
+        </select>
+
+        <select name="location" class="form-select form-select-sm" style="width: auto; min-height: 38px;" aria-label="Filter by location">
+          <option value="">All Locations</option>
+          {% for loc in locations %}
+            <option value="{{ loc._id }}" {% if current_location == (loc._id|string) %}selected{% endif %}>
+              {{ loc.name }}
+            </option>
+          {% endfor %}
+        </select>
+
+        <button type="submit" class="btn btn-sm btn-primary px-3" style="min-height: 38px; display: inline-flex; align-items: center;">
+          <i class="bi bi-funnel me-1"></i>Filter
+        </button>
+        <a href="{{ url_for('kanban.board') }}" class="btn btn-sm btn-outline-secondary" style="min-height: 38px; display: inline-flex; align-items: center;" title="Reset Filters" aria-label="Reset filters">
+          <i class="bi bi-arrow-clockwise" aria-hidden="true"></i>
+        </a>
+      </form>
     </div>
-
-    <!-- GET Filter Form -->
-    <form method="GET" action="{{ url_for('kanban.board') }}" class="d-flex flex-wrap gap-2 align-items-center" role="search" aria-label="Filter Kanban board">
-      <select name="type" class="form-select form-select-sm" style="width: auto; min-height: 38px;" aria-label="Filter by item type">
-        <option value="all" {% if current_type == 'all' %}selected{% endif %}>All Items</option>
-        <option value="lost" {% if current_type == 'lost' %}selected{% endif %}>Lost Only</option>
-        <option value="found" {% if current_type == 'found' %}selected{% endif %}>Found Only</option>
-      </select>
-
-      <select name="category" class="form-select form-select-sm" style="width: auto; min-height: 38px;" aria-label="Filter by category">
-        <option value="">All Categories</option>
-        {% for cat in categories %}
-          <option value="{{ cat._id }}" {% if current_category == (cat._id|string) %}selected{% endif %}>
-            {{ cat.name }}
-          </option>
-        {% endfor %}
-      </select>
-
-      <select name="location" class="form-select form-select-sm" style="width: auto; min-height: 38px;" aria-label="Filter by location">
-        <option value="">All Locations</option>
-        {% for loc in locations %}
-          <option value="{{ loc._id }}" {% if current_location == (loc._id|string) %}selected{% endif %}>
-            {{ loc.name }}
-          </option>
-        {% endfor %}
-      </select>
-
-      <button type="submit" class="btn btn-sm btn-primary" style="min-height: 38px; display: inline-flex; align-items: center;">Filter</button>
-      <a href="{{ url_for('kanban.board') }}" class="btn btn-sm btn-outline-secondary" style="min-height: 38px; display: inline-flex; align-items: center;" title="Reset" aria-label="Reset filters"><i class="bi bi-arrow-clockwise" aria-hidden="true"></i></a>
-    </form>
   </div>
 
   <!-- Kanban Columns (Pure CSS) -->
   <div class="kanban-board">
     {% for stage in stages %}
       {% set cards = columns[stage] %}
-      <div class="kanban-column">
+      <div class="kanban-column shadow-sm">
         <div class="kanban-column-header">
-          <span>{{ stage }}</span>
-          <span class="badge bg-secondary rounded-pill">{{ cards | length }}</span>
+          <span class="fw-bold text-dark fs-6">{{ stage }}</span>
+          <span class="badge bg-secondary rounded-pill px-2 py-1 font-monospace">{{ cards | length }}</span>
         </div>
 
         <div class="kanban-cards">
           {% for card in cards %}
-            <div class="kanban-card">
+            <div class="kanban-card rounded-3 border">
               <!-- Header Badges -->
               <div class="d-flex justify-content-between align-items-start mb-2">
-                <span class="badge {% if card.item_type == 'lost' %}bg-danger-subtle text-danger border border-danger-subtle{% else %}bg-success-subtle text-success border border-success-subtle{% endif %} small">
+                <span class="badge {% if card.item_type == 'lost' %}bg-danger-subtle text-danger border border-danger-subtle{% else %}bg-success-subtle text-success border border-success-subtle{% endif %} small font-monospace">
                   {{ card.item_type | upper }}: {{ card.reference_no }}
                 </span>
                 
                 <!-- Age indicator (amber >= 7 days, red >= 14 days) -->
-                <span class="badge bg-{{ card.age_class }} text-white small" title="Days since creation">
+                <span class="badge bg-{{ card.age_class }} text-white small" title="Days in custody/pipeline">
                   <i class="bi bi-clock me-1"></i>{{ card.age_days }}d
                 </span>
               </div>
 
               <!-- Title & Category -->
-              <div class="kanban-card-title">
+              <div class="kanban-card-title fw-bold mb-1">
                 <a href="{{ url_for(card.item_type + '.detail', item_id=card._id) }}" class="text-decoration-none text-dark">
-                  <i class="bi {{ card.category.icon }} text-secondary me-1"></i>{{ card.name }}
+                  <i class="bi {{ card.category.icon if card.category and card.category.icon else 'bi-box' }} text-secondary me-1"></i>{{ card.name }}
                 </a>
               </div>
 
-              <div class="small text-muted mb-2 text-truncate">
+              <div class="small text-muted mb-2 text-truncate" style="max-height: 2.8em;">
                 {{ card.description }}
               </div>
 
               <!-- Metadata row -->
-              <div class="small text-secondary mb-2">
-                <div><i class="bi bi-geo-alt me-1"></i>{{ card.location.name }}</div>
-                {% if card.color %}<div><i class="bi bi-palette me-1"></i>{{ card.color }}</div>{% endif %}
+              <div class="small text-secondary mb-2 border-top pt-2">
+                <div class="text-truncate"><i class="bi bi-geo-alt me-1 text-danger"></i>{{ card.location.name if card.location and card.location.name else (card.location if card.location else 'Campus') }}</div>
+                {% if card.color %}<div><i class="bi bi-palette me-1 text-info"></i>{{ card.color }}</div>{% endif %}
               </div>
 
               <!-- Top Match Badge if present -->
@@ -112,14 +123,15 @@
                   </form>
                 </div>
               {% else %}
-                <div class="border-top pt-2 mt-2 text-center text-muted" style="font-size: 0.8rem;">
+                <div class="border-top pt-2 mt-2 text-center text-muted small">
                   <i class="bi bi-lock-fill me-1" aria-hidden="true"></i>Terminal Stage
                 </div>
               {% endif %}
             </div>
           {% else %}
-            <div class="text-center text-muted py-4 small">
-              No items in this stage.
+            <div class="text-center text-muted py-5 small">
+              <i class="bi bi-inbox fs-4 d-block mb-1 opacity-50"></i>
+              No items in this stage
             </div>
           {% endfor %}
         </div>
