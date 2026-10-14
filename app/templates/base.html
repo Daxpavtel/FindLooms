@@ -43,20 +43,19 @@
     {% if show_nav %}
     <!-- LEFT-SIDED SIDEBAR NAVIGATION -->
     <aside class="lf-sidebar" id="lf-sidebar" role="navigation" aria-label="Main Navigation">
-      <!-- Sidebar Brand Header -->
+      <!-- Sliding Drawer Header -->
       <div class="lf-sidebar-header">
-        <a href="{{ url_for('index') }}" class="lf-brand" aria-label="LostFound Home">
-          <span class="lf-brand-mark">
-            <i class="bi bi-radar" aria-hidden="true"></i>
+        <div class="d-flex align-items-center gap-2">
+          <span class="lf-hamburger-icon small-hamburger" aria-hidden="true">
+            <span></span>
+            <span></span>
+            <span></span>
           </span>
-          <span class="lf-brand-text">
-            <span class="lf-brand-title">Lost<span class="lf-brand-accent">Found</span></span>
-            <span class="lf-brand-pill">CAMPUS</span>
-          </span>
-        </a>
+          <span class="lf-sidebar-title">Menu</span>
+        </div>
 
-        <!-- Mobile Drawer Close Button -->
-        <button type="button" class="lf-sidebar-close d-lg-none" id="sidebar-close-btn" aria-label="Close navigation sidebar">
+        <!-- Drawer Close Button -->
+        <button type="button" class="lf-sidebar-close" id="sidebar-close-btn" aria-label="Close navigation sidebar" title="Close Menu">
           <i class="bi bi-x-lg" aria-hidden="true"></i>
         </button>
       </div>
@@ -197,26 +196,38 @@
     <!-- MAIN WRAPPER (Top mobile header + Main Content + Footer) -->
     <div class="lf-main-wrapper">
       {% if show_nav %}
-      <!-- Mobile Top Bar (< 992px) -->
-      <header class="lf-mobile-header d-lg-none" role="banner">
-        <button type="button" class="lf-mobile-menu-btn" id="mobile-menu-btn" aria-label="Open sidebar menu" aria-controls="lf-sidebar" aria-expanded="false">
-          <i class="bi bi-list fs-3" aria-hidden="true"></i>
-        </button>
+      <!-- Top Navigation Bar with 3-Line Sliding Nav Toggle -->
+      <header class="lf-top-navbar" role="banner">
+        <div class="d-flex align-items-center gap-3">
+          <!-- 3-Line Sliding Nav Bar Toggle Button -->
+          <button type="button" class="lf-nav-toggle-btn" id="mobile-menu-btn" aria-label="Open navigation menu" aria-controls="lf-sidebar" aria-expanded="false" title="Open Navigation Menu">
+            <span class="lf-hamburger-icon" aria-hidden="true">
+              <span></span>
+              <span></span>
+              <span></span>
+            </span>
+            <span class="lf-nav-toggle-text d-none d-sm-inline">Menu</span>
+          </button>
+        </div>
 
-        <a href="{{ url_for('index') }}" class="lf-brand">
-          <span class="lf-brand-mark" style="width: 32px; height: 32px; font-size: 1rem;">
-            <i class="bi bi-radar" aria-hidden="true"></i>
-          </span>
-          <span class="lf-brand-text">
-            <span class="lf-brand-title fs-5">Lost<span class="lf-brand-accent">Found</span></span>
-          </span>
-        </a>
+        <!-- Right Side: Quick Theme Toggle & User Info / Sign In -->
+        <div class="d-flex align-items-center gap-2">
+          <button type="button" class="lf-theme-toggle lf-topbar-theme-btn" id="theme-toggle-btn" aria-label="Toggle light or dark theme" title="Toggle Light / Dark Mode">
+            <i class="bi bi-sun-fill lf-icon-sun" aria-hidden="true"></i>
+            <i class="bi bi-moon-stars-fill lf-icon-moon" aria-hidden="true"></i>
+          </button>
 
-        <!-- Mobile quick theme toggle -->
-        <button type="button" class="lf-theme-toggle lf-mobile-theme-btn" id="mobile-theme-toggle-btn" aria-label="Toggle theme">
-          <i class="bi bi-sun-fill lf-icon-sun" aria-hidden="true"></i>
-          <i class="bi bi-moon-stars-fill lf-icon-moon" aria-hidden="true"></i>
-        </button>
+          {% if current_user.is_authenticated %}
+            <div class="lf-topbar-user d-flex align-items-center gap-2 ps-2 border-start border-secondary-subtle">
+              <span class="lf-user-avatar-sm" title="{{ current_user.name }}">{{ current_user.name[:1] | upper }}</span>
+              <span class="d-none d-md-inline small fw-semibold text-truncate" style="max-width: 140px;">{{ current_user.name }}</span>
+            </div>
+          {% else %}
+            <a href="{{ url_for('auth.login') }}" class="btn btn-sm btn-outline-primary fw-semibold px-3 py-1">
+              <i class="bi bi-box-arrow-in-right me-1" aria-hidden="true"></i>Sign In
+            </a>
+          {% endif %}
+        </div>
       </header>
       {% else %}
       <!-- Minimalist Theme Toggle for Standalone Auth Pages -->

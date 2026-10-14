@@ -62,22 +62,15 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   });
 
-  // Close on mobile (< 992px) when clicking any navigation link
+  // Close when clicking any navigation link
   if (sidebar) {
     sidebar.addEventListener('click', function (e) {
       const link = e.target.closest('a');
-      if (link && window.innerWidth < 992) {
+      if (link) {
         closeSidebar();
       }
     });
   }
-
-  // Auto-close drawer if resized to desktop (>= 992px)
-  window.addEventListener('resize', function () {
-    if (window.innerWidth >= 992 && sidebar && sidebar.classList.contains('is-open')) {
-      closeSidebar();
-    }
-  });
 
   // Light / Dark Mode Interactive Toggle (Sidebar & Mobile Header)
   const themeBtns = document.querySelectorAll('.lf-theme-toggle');

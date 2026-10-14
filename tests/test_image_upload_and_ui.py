@@ -181,3 +181,15 @@ def test_login_page_does_not_render_navbar(client):
     assert "mobile-menu-btn" not in html
     assert "theme-toggle-btn" in html
     assert "Sign In" in html
+
+
+def test_three_line_sliding_navbar_rendered(client):
+    """Test that the 3-line hamburger sliding navbar toggle is rendered and the static brand mark is removed."""
+    res = client.get("/lost")
+    assert res.status_code == 200
+    html = res.data.decode("utf-8")
+
+    assert "lf-top-navbar" in html
+    assert "lf-hamburger-icon" in html
+    assert "lf-sidebar-title" in html
+    assert "CAMPUS</span>" not in html
